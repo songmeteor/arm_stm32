@@ -1,152 +1,154 @@
-#include "led.h"
+# include "led.h"
+
 
 
 void led_all_on(void)
 {
 #if 1
-   //printf(*int %d\n" ,sizeof(int));  //int가 32bit 인지(4bytes)인지 확인
-  *(unsigned int*)GPIOB_ODR = 0xff;
-#else
-
-	//	HAL_GPIO_WritePin(GPIOB, 0xff, 1);
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 |
-			GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 , 1);
+	// printf("int %d\n", sizeof(int));	// 4로 찍히는지 확인
+	*(unsigned int *)GPIOB_ODR = 0xff;
+#else	// org
+//	HAL_GPIO_WritePin(GPIOB, 0xff, 1);
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3
+			| GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7, 1);
 #endif
 }
 
 void led_all_off(void)
 {
-
-
 #if 1
-  *(unsigned int*)GPIOB_ODR = 0x00;
-#else
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 |
-				GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 , 0);
+	*(unsigned int *)GPIOB_ODR = 0x00;
+#else	// org
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3
+			| GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7, 0);
 #endif
 }
 
-void shift_left_led_on(void)
+void shift_left_ledon(void)
 {
-	led_all_off();
 #if 1
-	for(int i=0 ; i<8 ; i++)
-	{
-		*(unsigned int*)GPIOB_ODR = 0x01 << i;
-		HAL_Delay(50);
-	}
-#else
-	for(int i=0 ; i<8 ; i++)
-	{
-		HAL_GPIO_WritePin(GPIOB, 0b00000001 << i, 1);
-		HAL_Delay(50);
-		HAL_GPIO_WritePin(GPIOB, 0b00000001 << i, 0);
-	}
-#endif
-}
-
-void shift_right_led_on(void)
-{
 	led_all_off();
-#if 1
-	for(int i=0 ; i<8 ; i++)
+		for(int i = 0; i < 8; i++)
+		{
+			*(unsigned int *)GPIOB_ODR = 0x01 << i;
+			HAL_Delay(100);
+			led_all_off();
+			HAL_Delay(100);
+		}
+#else	// org
+	led_all_off();
+	for(int i = 0; i < 8; i++)
 	{
-		*(unsigned int*)GPIOB_ODR = 0x80 >> i;
-		HAL_Delay(50);
-	}
-#else
-	for(int i=0 ; i<8 ; i++)
-	{
-		HAL_GPIO_WritePin(GPIOB, 0b10000000 >> i, 1);
-		HAL_Delay(50);
-		HAL_GPIO_WritePin(GPIOB, 0b10000000 >> i, 0);
+		HAL_GPIO_WritePin(GPIOB, 0x01 << i , 1);
+		HAL_Delay(100);
+		led_all_off();
+		HAL_Delay(100);
 	}
 #endif
 }
 
-void shift_left_keep_led_on(void)
+void shift_right_ledon(void)
 {
-	led_all_off();
 #if 1
-	for(int i=0; i<8 ; i++)
+
+	led_all_off();
+		for(int i = 0; i < 8; i++)
+		{
+			*(unsigned int *)GPIOB_ODR = 0x01 << i;
+			HAL_Delay(100);
+			led_all_off();
+			HAL_Delay(100);
+		}
+#else	// org
+	led_all_off();
+	for(int i = 0; i < 8; i++)
 	{
-		*(unsigned int*)GPIOB_ODR |= 0x01 << i;
-		HAL_Delay(50);
-	}
-#else
-	for(int i=0; i<8 ; i++)
-	{
-		HAL_GPIO_WritePin(GPIOB, 0b00000001 << i, 1);
-		HAL_Delay(50);
+		HAL_GPIO_WritePin(GPIOB, 0x80 >> i , 1);
+		HAL_Delay(100);
+		led_all_off();
+		HAL_Delay(100);
 	}
 #endif
 }
 
-void shift_right_keep_led_on(void)
+void shift_left_keep_ledon(void)
 {
-	led_all_off();
 #if 1
-	for(int i=0; i<8 ; i++)
+	*(unsigned int *)GPIOB_ODR = 0x00;
+#else	// org
+	led_all_off();
+	HAL_Delay(100);
+	for(int i = 0; i < 8; i++)
 	{
-		*(unsigned int*)GPIOB_ODR |= 0x80 >> i;
-		HAL_Delay(50);
+		HAL_GPIO_WritePin(GPIOB, 0x01 << i , 1);
+		HAL_Delay(100);
 	}
-#else
-	for(int i=0; i<8 ; i++)
+#endif
+}
+
+void shift_right_keep_ledon(void)
+{
+#if 1
+	*(unsigned int *)GPIOB_ODR = 0x00;
+#else	// org
+	led_all_off();
+	HAL_Delay(100);
+	for(int i = 0; i < 8; i++)
 	{
-		HAL_GPIO_WritePin(GPIOB, 0b10000000 >> i, 1);
-		HAL_Delay(50);;
+		HAL_GPIO_WritePin(GPIOB, 0x80 >> i , 1);
+		HAL_Delay(100);
 	}
 #endif
 }
 
 void flower_on(void)
 {
-
-#if 1 //구초제 pointer member access
-	for(int i=0; i<4; i++)
+#if 1	// 구조체 pointer member
+	led_all_off();
+	HAL_Delay(100);
+	for(int i = 0; i < 4; i++)
 	{
 		GPIOB->ODR |= 0x10 << i | 0x08 >> i;
-		HAL_Delay(50);
-	}
-		led_all_off();
-		HAL_Delay(50);
-#endif
-
-#if 0 //DMA
-	for(int i=0; i<4; i++)
-	{
-		*(unsigned int*)GPIOB_ODR |= 0x10 << i | 0x08 >> i;
-		HAL_Delay(50);
+		HAL_Delay(100);
 	}
 #endif
-
-#if 0 //HAL
-	for(int i=0; i<4; i++)
-	{
-		HAL_GPIO_WritePin(GPIOB, 0b00011000 << i, 1);
-		HAL_GPIO_WritePin(GPIOB, 0b00011000 >> i, 1);
-		HAL_Delay(50);
-	}
-#endif
+#if 0	// DMA
 	led_all_off();
+	HAL_Delay(100);
+	for(int i = 0; i < 4; i++)
+	{
+		*(unsigned int *)GPIOB_ODR |= 0x10 << i | 0x08 >> i;
+		HAL_Delay(100);
+	}
+#endif
+#if 0	// org
+	led_all_off();
+	HAL_Delay(100);
+	for(int i = 0; i < 4; i++)
+	{
+		HAL_GPIO_WritePin(GPIOB, (0x08 >> i | 0x10 << i) , 1);
+		HAL_Delay(100);
+	}
+#endif
 }
 
 void flower_off(void)
 {
-	led_all_on();
 #if 1
-	for(int i=0; i<4; i++)
+	led_all_on();
+	HAL_Delay(100);
+	for(int i = 0; i < 4; i++)
 	{
-		*(unsigned int*)GPIOB_ODR &= 0b01111110 >> i & 0b01111110 << i;
-		HAL_Delay(50);
+		*(unsigned int *)GPIOB_ODR &= ~(0x80 >> i | 0x01 << i);
+		HAL_Delay(100);
 	}
 #else
-	for(int i=0; i<4; i++)
+	led_all_on();
+	HAL_Delay(100);
+	for(int i = 0; i < 4; i++)
 	{
-		HAL_GPIO_WritePin(GPIOB, 0b00000001 << i, 0);
-		HAL_GPIO_WritePin(GPIOB, 0b10000000 >> i, 0);
-		HAL_Delay(50);
+		HAL_GPIO_WritePin(GPIOB, (0x01 << i | 0x80 >> i) , 0);
+		HAL_Delay(100);
 	}
 #endif
 }
@@ -155,20 +157,18 @@ void led_main(void)
 {
 	while(1)
 	{
-		//(*GPIOB).ODR
-//		GPIOB->ODR ^= GPIO_PIN_0 | GPIO_PIN_3;
+		flower_on();
+//		(*GPIOB).ODR |= GPIO_PIN_0;		// LED0 ON
+//		GPIOB->ODR ^= GPIO_PIN_1;		// LED1 toggle 반전
 //		HAL_Delay(500);
-
+//		GPIOB->ODR &= ~GPIO_PIN_0;		// LED0 OFF
+//		HAL_Delay(500);
 //		led_all_on();
-//		HAL_Delay(100);
+//		HAL_Delay(500);
 //		led_all_off();
-//		HAL_Delay(100);
-//
-//		shift_left_led_on();
-//		shift_right_led_on();
-//    	shift_left_keep_led_on();
-//		shift_right_keep_led_on();
-	    flower_on();
+//		HAL_Delay(500);
 //		flower_off();
+//		HAL_Delay(100);
 	}
 }
+

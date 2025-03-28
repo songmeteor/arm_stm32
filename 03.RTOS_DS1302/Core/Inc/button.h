@@ -1,16 +1,19 @@
-#ifndef INC_BUTTON_H
-#define INC_BUTTON_H
 
-#include "main.h"
+#ifndef INC_BUTTON_H_
+#define INC_BUTTON_H_
 
-#define BTN0  0 //PC0
-#define BTN1  1 //PC1
-#define BTN2  2 //PC2
-#define BTN3  3 //PC3
-#define BTN4  13 //PC13  demo borad
 
-#define BUTTON_PRESS   0  // active low
-#define BUTTON_RELEASE 1  // button을 땐 상태
-#define BUTTON_NUMBER  5
+#include "main.h"	// HAL / GPIO config
 
-#endif
+#define BTN0 0	// PORTC0
+#define BTN1 1	// PORTC1
+#define BTN2 2	// PORTC2
+#define BTN3 3	// PORTC3
+#define BTN4 4	// PORTC13	demo'bd
+#define BUTTON_NUMER 5
+
+#define BUTTON_PRESS 0		// active low
+#define BUTTON_RELEASE 1	// button을 뗀 상태
+
+
+#endif /* INC_BUTTON_H_ */
