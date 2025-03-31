@@ -77,7 +77,11 @@ void Error_Handler(void);
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
-
+typedef struct print_option
+{
+	uint8_t p_rtc;
+	uint8_t p_led;
+}t_print;
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

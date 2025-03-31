@@ -1,6 +1,5 @@
 # include "led.h"
-
-
+# include "extern.h"
 
 void led_all_on(void)
 {
@@ -157,7 +156,7 @@ void led_main(void)
 {
 	while(1)
 	{
-		flower_on();
+//		flower_on();
 //		(*GPIOB).ODR |= GPIO_PIN_0;		// LED0 ON
 //		GPIOB->ODR ^= GPIO_PIN_1;		// LED1 toggle 반전
 //		HAL_Delay(500);
@@ -169,6 +168,12 @@ void led_main(void)
 //		HAL_Delay(500);
 //		flower_off();
 //		HAL_Delay(100);
+
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+		for(int i=0; i< 50; i++)
+		{
+			delay_us(1000);
+		}
 	}
 }
 

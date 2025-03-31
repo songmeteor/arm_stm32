@@ -10,6 +10,7 @@
 #include "extern.h"
 #include "ds1302.h"
 
+void set_RTC(char *date_time);
 
 void set_RTC(char *date_time)
 {
@@ -22,7 +23,7 @@ void set_RTC(char *date_time)
 		ds1302.minutes = ((int)date_time[14] - 48)*10 + ((int)date_time[15] - 48);
 		ds1302.seconds = ((int)date_time[16] - 48)*10 + ((int)date_time[17] - 48);
 
-		front = (front + 1) % COMMAND_NUMBER;
+		//front = (front + 1) % COMMAND_NUMBER;
 		init_ds1302();
 	}
 }
@@ -37,21 +38,23 @@ void ds1302_main()
 	{
 		read_time_ds1302();
 		read_date_ds1302();
-
-		if(front != rear) //rx_buff에 data가 존재
+		pc_command_processing();
+		//set_RTC((char*)rx_buff[front]);
+		if(TIM11_1ms_counter > 1000)
 		{
-			set_RTC((char*)rx_buff[front]);
+			TIM11_1ms_counter = 0;
+			// 날짜와 시각을 출력
+			if(o_prt.p_rtc)
+			{
+				printf(" %4d-%2d-%2d %2d:%2d:%2d\n",
+						ds1302.year+2000,
+						ds1302.month,
+						ds1302.date,
+						ds1302.hours,
+						ds1302.minutes,
+						ds1302.seconds);
+			}
 		}
-
-		// 날짜와 시각을 출력
-		printf(" %4d-%2d-%2d %2d:%2d:%2d\n",
-				ds1302.year+2000,
-				ds1302.month,
-				ds1302.date,
-				ds1302.hours,
-				ds1302.minutes,
-				ds1302.seconds);
-		HAL_Delay(1000);
 	}
 }
 

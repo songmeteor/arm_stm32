@@ -7,6 +7,8 @@ volatile uint8_t rx_buff[COMMAND_NUMBER][COMMAND_LENGHT];
 volatile int rear = 0;
 volatile int front = 0;
 
+t_print o_prt;
+
 void pc_command_processing(void);
 
 /**
@@ -41,14 +43,49 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	}
 }
 
+void show_command(void)
+{
+	char *cmd[] =
+	{
+		"setrtc",
+		"print_rtc",
+		"printoff_rtc",
+		"help"
+	};
+
+	for(int i=0; i<4; i++)
+	{
+		printf("%s\n",cmd[i]);
+	}
+}
+
 void pc_command_processing(void)
 {
 	if(front != rear) //rx_buff에 data가 존재
 	{
-		printf("%s\n",(const char *)rx_buff[front]); //rx_buff[front][0]
+		//printf("%s\n",(const char *)rx_buff[front]); //rx_buff[front][0]
 		if(strncmp((const char *)rx_buff[front], "led_all_on",strlen("led_all_on")) == 0)
 		{
 		   printf("find: led_all_on\n");
+		}
+		else if(strncmp((const char *)rx_buff[front], "setrtc",strlen("setrtc")) == 0)
+		{
+			set_RTC((char *)rx_buff[front]);
+			//printf("%s\n",rx_buff[front]);
+		}
+		else if(strncmp((const char *)rx_buff[front], "help",strlen("help")) == 0)
+		{
+			show_command();
+		}
+		else if(strncmp((const char *)rx_buff[front], "print_rtc",strlen("print_rtc")) == 0)
+		{
+			o_prt.p_rtc = 1;
+			printf("print_rtc: %d\n",o_prt.p_rtc);
+		}
+		else if(strncmp((const char *)rx_buff[front], "printoff_rtc",strlen("printoff_rtc")) == 0)
+		{
+			o_prt.p_rtc = 0;
+			printf("print_rtc: %d\n",o_prt.p_rtc);
 		}
 		front++;
 		front %= COMMAND_NUMBER;
