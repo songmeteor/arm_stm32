@@ -5,11 +5,15 @@
 #include <stdio.h>
 
 uint8_t us_count = 0;
-enum state_define dht11_state = OK;
+enum state_define dht11_state = OK;	// 앞으로 관리할 state변수 생성 (초기값 OK)
+
+void dht11_main(void);
 
 void init_dht11(void)
 {
-	*(unsigned int *)GPIOA_ODR |= 1<<DHT_PIN_NUM;
+	*(unsigned int *)GPIOA_MODER |= 1<<DHT_PIN_NUM;    //output mode
+	*(unsigned int *)GPIOA_MODER &= ~(1<<(DHT_PIN_NUM+1));
+	*(unsigned int *)GPIOA_ODR |= 1<<DHT_PIN_NUM; //GPIOA 0
 }
 
 
@@ -26,20 +30,28 @@ void dht11_main(void)
 
         //========= step1 : start signal  ================
         init_dht11();
-        delay_ms(100);
+        for(int i=0;i<100;i++) //100ms delay
+        {
+        	delay_us(1000);
+        }
 
-        DHT_PORT &= ~(1 << DHT_PIN_NUM); // DATA LOW
-        delay_ms(20);
+        *(unsigned int *)GPIOA_ODR &= ~(1<<DHT_PIN_NUM); // DATA LOW
 
-        DHT_PORT |= 1 << DHT_PIN_NUM; // DATA HIGH
-        DHT_DDR &= ~(1 << DHT_PIN_NUM); // input mode
-        _delay_us(1);
+        for(int i=0;i<20;i++) //20ms delay
+        {
+        	delay_us(1000);
+        }
+
+        *(unsigned int *)GPIOA_ODR |= 1<<DHT_PIN_NUM; // DATA HIGH
+
+        *(unsigned int *)GPIOA_MODER &= ~(1<<DHT_PIN_NUM | 1 << (DHT_PIN_NUM+1)); // input mode
+        delay_us(1);
 
         // response check
         us_count = 0;
-        while((DHT_PIN & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM) // 아직도 high 인지 check
+        while(((*(unsigned int *)GPIOA_IDR) & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM)
         {
-            _delay_us(2);
+        	delay_us(2);
             us_count += 2;
             if(us_count > 50) // 50us만큼 기다렸는데도 high면 error
             {
@@ -53,9 +65,9 @@ void dht11_main(void)
         {
             // response check
             us_count = 0;
-            while(!((DHT_PIN & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM)) // LOW 일동안 반복
+            while(!(((*(unsigned int *)GPIOA_IDR) & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM)) // LOW 일동안 반복
             {
-                _delay_us(2);
+            	delay_us(2);
                 us_count += 2;
                 if(us_count > 100) // spec에는 80us인데 여유를 둬서 100us만큼 기다렸는데도 low 면 error
                 {
@@ -70,9 +82,9 @@ void dht11_main(void)
         {
             // response check
             us_count = 0;
-            while((DHT_PIN & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM) //  high 일동안 반복
+            while(((*(unsigned int *)GPIOA_IDR) & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM) //  high 일동안 반복
             {
-                _delay_us(2);
+            	delay_us(2);
                 us_count += 2;
                 if(us_count > 100) // spec에는 80us인데 여유를 둬서 100us만큼 기다렸는데도 low 면 error
                 {
@@ -93,9 +105,9 @@ void dht11_main(void)
                 {
                     //LOW 확인 50us check
                     us_count = 0;
-                    while(!((DHT_PIN & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM)) // LOW 일동안 반복
+                    while(!(((*(unsigned int *)GPIOA_IDR) & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM)) // LOW 일동안 반복
                     {
-                        _delay_us(2);
+                    	delay_us(2);
                         us_count += 2;
                         if(us_count > 70) // spec에는 50us인데 여유를 둬서 70us만큼 기다렸는데도 low 면 error
                         {
@@ -109,9 +121,9 @@ void dht11_main(void)
                     if(dht11_state == OK)
                     {
                         us_count = 0;
-                        while((DHT_PIN & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM) // HIGH 일동안 반복
+                        while(((*(unsigned int *)GPIOA_IDR) & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM) // HIGH 일동안 반복
                         {
-                            _delay_us(2);
+                        	delay_us(2);
                             us_count += 2;
                             if(us_count > 90) // '0' : HIGH 길이 : 26~28us '1' : HIGH 길이 70us 인데 이것보다 길게 90us
                             {
@@ -151,7 +163,7 @@ void dht11_main(void)
                     dht11_state = VALUE_ERROR;
                 }
             }
-            _delay_us(60); // SPEC에는 50us인데 여유를 둬서 60us
+            delay_us(60);; // SPEC에는 50us인데 여유를 둬서 60us
         }
 
         //값 출력
@@ -164,6 +176,9 @@ void dht11_main(void)
         {
             printf("error code : %d\n", dht11_state);
         }
-        _delay_ms(2000);
+        for(int i=0; i<2000; i++)
+        {
+        	delay_us(1000);
+        }
     }
 }

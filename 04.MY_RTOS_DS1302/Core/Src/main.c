@@ -135,8 +135,9 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
- //led_main();
-  ds1302_main();
+ led_main();
+  //ds1302_main();
+
   /* USER CODE END 2 */
 
   /* Init scheduler */

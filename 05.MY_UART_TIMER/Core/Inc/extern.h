@@ -22,5 +22,6 @@ extern void ds1302_main(void);
 extern void pc_command_processing(void);
 extern void set_RTC(char *date_time);
 extern void delay_us(int us);
+extern void dht11_main(void);
 
 #endif /* __EXTERN_H */

@@ -23,8 +23,6 @@
 #define GPIOA_PUPDR 0x4002000C
 #define GPIOA_OSPEEDR 0x40020008
 
-
-
 void ds1302_main();
 void read_time_ds1302();
 void read_date_ds1302();
@@ -40,6 +38,7 @@ void input_dataline_ds1302();
 void clock_ds1302();
 void init_gpio_ds1302();
 void init_date_time();
+
 typedef struct s_ds1302
 {
 	uint8_t seconds;		// sec
