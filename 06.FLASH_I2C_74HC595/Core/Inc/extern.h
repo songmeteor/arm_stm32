@@ -30,4 +30,6 @@ extern HAL_StatusTypeDef flash_read(uint32_t *addr32, int size);
 extern void flash_set_time(void);
 extern HAL_StatusTypeDef flash_erase();
 
+extern void i2c_lcd_main(void);
+
 #endif /* __EXTERN_H */
