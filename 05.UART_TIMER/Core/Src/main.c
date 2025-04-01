@@ -146,8 +146,8 @@ int main(void)
   HAL_UART_Receive_IT(&huart2, &rx_data, 1);
   HAL_TIM_Base_Start_IT(&htim11);
   HAL_TIM_Base_Start_IT(&htim2);  //for make delay_us
-  led_main();
-  //ds1302_main();
+  //led_main();
+  ds1302_main();
   /* USER CODE END 2 */
 
   /* Init scheduler */

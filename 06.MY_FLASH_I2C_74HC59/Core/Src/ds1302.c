@@ -9,12 +9,22 @@
 #include <stdio.h>
 #include "extern.h"
 #include "ds1302.h"
+#include "button.h"
 
 t_ds1302 ds1302;
 t_ds1302 ds1302_alarm;
 
 void set_RTC(char *date_time);
 void init_alarm_clock(void);
+void init_gpio_ds1302();
+void init_ds1302();
+void ds1302_clock(int *current_mode);
+void ds1302_set_alarm(int *current_mode);
+void display_alarm_clock(void);
+void display_date_time(void);
+void display_alarm_clock_on(void);
+void display_alarm_wake_up(void);
+void alarm_operate(int *current_mode);
 
 void set_RTC(char *date_time)
 {
@@ -39,17 +49,101 @@ void init_alarm_clock(void)
 	ds1302_alarm.seconds = 0;
 }
 
-void ds1302_set_alarm()
+void alarm_operate(int *current_mode)
 {
+	int lcd_toggle=1;
 
+	if(get_button(GPIOC, GPIO_PIN_1, BTN1) == BUTTON_PRESS)
+	{
+		*current_mode = CLOCK_MODE;
+		init_alarm_clock();
+	}
+	read_time_ds1302();
+	read_date_ds1302();
+	pc_command_processing();
+
+	if(TIM11_1ms_counter3>1000)
+	{
+		TIM11_1ms_counter3=0;
+		lcd_toggle = !lcd_toggle;
+	}
+
+	if(lcd_toggle)
+	{
+
+		display_alarm_wake_up();
+	}
+	else
+	{
+		i2c_lcd_init();
+		HAL_Delay(500);
+	}
 }
 
-void ds1302_clock()
+
+void ds1302_set_alarm(int *current_mode)
 {
-	init_gpio_ds1302();
-	flash_set_time();
-	flash_read((uint32_t *)&ds1302, sizeof(ds1302));
-	init_ds1302();
+	if(get_button(GPIOC, GPIO_PIN_0, BTN0) == BUTTON_PRESS)
+	{
+		*current_mode = CLOCK_MODE;
+		return;
+	}
+	if(TIM11_1ms_counter2>10000)
+	{
+		flash_erase();
+		flash_write((uint32_t *)&ds1302, sizeof(ds1302));
+		TIM11_1ms_counter2=0;
+	}
+	read_time_ds1302();
+	read_date_ds1302();
+	pc_command_processing();
+
+	display_alarm_clock();
+
+	if(get_button(GPIOC, GPIO_PIN_1, BTN1) == BUTTON_PRESS)
+	{
+		if(ds1302_alarm.hours>=23)
+		{
+			ds1302_alarm.hours=0;
+		}
+		else
+		{
+			ds1302_alarm.hours++;
+		}
+	}
+
+	if(get_button(GPIOC, GPIO_PIN_2, BTN2) == BUTTON_PRESS)
+	{
+		if(ds1302_alarm.minutes>=59)
+		{
+			ds1302_alarm.minutes=0;
+		}
+		else
+		{
+			ds1302_alarm.minutes++;
+		}
+	}
+
+	if(get_button(GPIOC, GPIO_PIN_3, BTN3) == BUTTON_PRESS)
+	{
+		if(ds1302_alarm.seconds>=59)
+		{
+			ds1302_alarm.seconds=0;
+		}
+		else
+		{
+			ds1302_alarm.seconds++;
+		}
+	}
+}
+
+void ds1302_clock(int *current_mode)
+{
+	if(ds1302.hours==ds1302_alarm.hours && ds1302.minutes == ds1302_alarm.minutes && ds1302.seconds == ds1302_alarm.seconds)
+	{
+		*current_mode = ALARM_OPERATE_MODE;
+		return;
+	}
 
 	if(TIM11_1ms_counter2>10000)
 	{
@@ -61,8 +155,8 @@ void ds1302_clock()
 	read_date_ds1302();
 	pc_command_processing();
 
-	if(TIM11_1ms_counter > 1000)
-	{
+//	if(TIM11_1ms_counter > 1000)
+//	{
 		TIM11_1ms_counter = 0;
 		if(ds1302_alarm.hours ==0 && ds1302_alarm.minutes == 0 && ds1302_alarm.seconds ==0)
 		{
@@ -70,9 +164,9 @@ void ds1302_clock()
 		}
 		else
 		{
-			display_alarm_clock();
+			display_alarm_clock_on();
 		}
-	}
+//	}
 }
 
 void ds1302_main()
@@ -113,11 +207,41 @@ void ds1302_main()
 		}
 	}
 }
+
+void display_alarm_wake_up(void)
+{
+	char icd_buff[40];
+
+	sprintf(icd_buff,"   WAKE-UP!!   ");
+	move_cursor(0,0);
+	lcd_string(icd_buff);
+
+	sprintf(icd_buff,"Time: %2d:%2d:%2d",ds1302.hours,ds1302.minutes,ds1302.seconds);
+	move_cursor(1,0);
+	lcd_string(icd_buff);
+}
+
+
+void display_alarm_clock_on(void)
+{
+	char icd_buff[40];
+
+	sprintf(icd_buff,"ALM: %2d:%2d:%2d on",ds1302_alarm.hours,ds1302_alarm.minutes,ds1302_alarm.seconds);
+	move_cursor(0,0);
+	lcd_string(icd_buff);
+
+	sprintf(icd_buff,"Time: %2d:%2d:%2d",ds1302.hours,ds1302.minutes,ds1302.seconds);
+	move_cursor(1,0);
+	lcd_string(icd_buff);
+}
+
+
+
 void display_alarm_clock(void)
 {
 	char icd_buff[40];
 
-	sprintf(icd_buff,"Time: %2d:%2d:%2d",ds1302_alarm.hours,ds1302_alarm.minutes,ds1302_alarm.seconds);
+	sprintf(icd_buff,"ALM: %2d:%2d:%2d   ",ds1302_alarm.hours,ds1302_alarm.minutes,ds1302_alarm.seconds);
 	move_cursor(0,0);
 	lcd_string(icd_buff);
 

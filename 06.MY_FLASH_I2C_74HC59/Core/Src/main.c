@@ -74,6 +74,7 @@ const osThreadAttr_t myTask03_attributes = {
 uint8_t rx_data; //uart2 rx byte
 volatile int TIM11_1ms_counter = 0;
 volatile int TIM11_1ms_counter2 = 0;
+volatile int TIM11_1ms_counter3 = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -134,8 +135,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  i2c_lcd_init();
-  init_alarm_clock();
+
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -159,11 +159,18 @@ int main(void)
   //i2c_lcd_main();
   //ds1302_main();
 
+  init_alarm_clock();
+  init_gpio_ds1302();
+  i2c_lcd_init();
+
+  flash_set_time();
+  flash_read((uint32_t *)&ds1302, sizeof(ds1302));
+  init_ds1302();
 
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  osKernelInitialize();
+  //osKernelInitialize();
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
@@ -183,13 +190,13 @@ int main(void)
 
   /* Create the thread(s) */
   /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  //defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* creation of myTask02 */
-  myTask02Handle = osThreadNew(StartTask02, NULL, &myTask02_attributes);
+  //myTask02Handle = osThreadNew(StartTask02, NULL, &myTask02_attributes);
 
   /* creation of myTask03 */
-  myTask03Handle = osThreadNew(StartTask03, NULL, &myTask03_attributes);
+  //myTask03Handle = osThreadNew(StartTask03, NULL, &myTask03_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -200,7 +207,7 @@ int main(void)
   /* USER CODE END RTOS_EVENTS */
 
   /* Start scheduler */
-  osKernelStart();
+  //osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
@@ -215,12 +222,17 @@ int main(void)
 
 	if(current_mode == CLOCK_MODE)
 	{
-
+		ds1302_clock(&current_mode);
 	}
 
 	if(current_mode == ALARM_SET_MODE)
 	{
+		ds1302_set_alarm(&current_mode);
+	}
 
+	if(current_mode == ALARM_OPERATE_MODE)
+	{
+		alarm_operate(&current_mode);
 	}
     /* USER CODE END WHILE */
   }
@@ -548,6 +560,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim->Instance == TIM11) {
 	  TIM11_1ms_counter++;
 	  TIM11_1ms_counter2++;
+	  TIM11_1ms_counter3++;
   /* USER CODE END Callback 1 */
 }
 }
