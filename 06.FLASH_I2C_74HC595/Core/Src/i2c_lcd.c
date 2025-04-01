@@ -5,7 +5,7 @@
  *      Author: k
  */
 #include "main.h"
-
+#include "extern.h"
 #include "stm32f4xx_hal.h"
 #include <string.h>
 #include <stdio.h>
@@ -15,9 +15,12 @@ extern I2C_HandleTypeDef hi2c1;
 
 void i2c_lcd_main(void);
 void i2c_lcd_init(void);
+void lcd_string(uint8_t *str);
+void move_cursor(uint8_t row, uint8_t column);
 
 #define I2C_LCD_ADDRESS (0x27 << 1)
 unsigned char lcd_test[4] = { '4','3', 0};
+
 
 void i2c_lcd_main(void)
 {
@@ -33,7 +36,6 @@ void i2c_lcd_main(void)
 #if 1
 	uint8_t value=0;
 	i2c_lcd_init();
-
 
 	while(1)
 	{

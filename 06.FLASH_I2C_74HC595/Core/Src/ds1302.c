@@ -10,8 +10,6 @@
 #include "extern.h"
 #include "ds1302.h"
 
-
-
 void set_RTC(char *date_time);
 
 void set_RTC(char *date_time)
@@ -32,6 +30,7 @@ void set_RTC(char *date_time)
 
 void ds1302_main()
 {
+	i2c_lcd_init();
 	init_date_time();
 	init_gpio_ds1302();
 	flash_set_time();
@@ -53,6 +52,7 @@ void ds1302_main()
 		if(TIM11_1ms_counter > 1000)
 		{
 			TIM11_1ms_counter = 0;
+			display_date_time();
 			// 날짜와 시각을 출력
 			if(o_prt.p_rtc)
 			{
@@ -67,6 +67,21 @@ void ds1302_main()
 		}
 	}
 }
+
+void display_date_time(void)
+{
+	char icd_buff[40];
+
+	sprintf(icd_buff,"Date: %2d-%2d-%2d",ds1302.year+2000,ds1302.month,ds1302.date);
+	move_cursor(0,0);
+	lcd_string(icd_buff);
+
+	sprintf(icd_buff,"Time: %2d:%2d:%2d",ds1302.hours,ds1302.minutes,ds1302.seconds);
+	move_cursor(1,0);
+	lcd_string(icd_buff);
+
+}
+
 
 void read_time_ds1302()
 {

@@ -83,7 +83,20 @@ typedef struct print_option
 	uint8_t p_led;
 }t_print;
 
-
+typedef struct s_ds1302
+{
+	uint32_t magic;
+	uint8_t seconds;		// sec
+	uint8_t minutes;
+	uint8_t hours;
+	uint8_t date;
+	uint8_t month;
+	uint8_t dayofweek;		// 1: sun 2:mon
+	uint8_t year;
+	uint8_t ampm;			// 1: pm  2: am
+	uint8_t hoursmode;		// 0: 24  1: 12
+	uint8_t dummy[3];
+} t_ds1302;
 
 /* USER CODE END Private defines */
 

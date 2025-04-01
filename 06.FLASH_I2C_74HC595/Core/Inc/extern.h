@@ -31,5 +31,8 @@ extern void flash_set_time(void);
 extern HAL_StatusTypeDef flash_erase();
 
 extern void i2c_lcd_main(void);
+extern void i2c_lcd_init(void);
+extern void lcd_string(uint8_t *str);
+extern void move_cursor(uint8_t row, uint8_t column);
 
 #endif /* __EXTERN_H */

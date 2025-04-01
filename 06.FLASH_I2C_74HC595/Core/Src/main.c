@@ -152,7 +152,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim11);
   HAL_TIM_Base_Start_IT(&htim2);  //for make delay_us
   //led_main();
-  i2c_lcd_main();
+  //i2c_lcd_main();
   ds1302_main();
 
   /* USER CODE END 2 */

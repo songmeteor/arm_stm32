@@ -56,6 +56,7 @@ typedef struct
   uint8_t Hours;
   uint8_t Date;
   uint8_t Month;
+  uint8_t dayofweek;
   uint8_t Year;
 } t_set_time;
 
