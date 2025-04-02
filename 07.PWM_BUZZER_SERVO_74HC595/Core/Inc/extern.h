@@ -35,4 +35,8 @@ extern void i2c_lcd_init(void);
 extern void lcd_string(uint8_t *str);
 extern void move_cursor(uint8_t row, uint8_t column);
 
+extern void buzzer_main();
+
+extern void servo_motor_main(void);
+
 #endif /* __EXTERN_H */

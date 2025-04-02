@@ -152,10 +152,33 @@ void flower_off(void)
 #endif
 }
 
+extern SPI_HandleTypeDef hspi2;
+
 void led_main(void)
 {
-	while(1)
+
+	uint8_t led_buff[8] = {0xFF, 0x0F, 0xF0, 0x00,0xFF, 0x0F, 0xF0, 0x00};
+
+	 while (1)
 	{
+#if 1
+		HAL_SPI_Transmit(&hspi2,led_buff, 1, 1);
+		GPIOB->ODR &= ~GPIO_PIN_13;   // latch핀을 pull-down ODR(Output Data Register)
+		GPIOB->ODR |= GPIO_PIN_13;    // latch핀을 pull-up ODR(Output Data Register)
+		HAL_Delay(500);
+		HAL_SPI_Transmit(&hspi2,&led_buff[3], 1, 1);
+		GPIOB->ODR &= ~ GPIO_PIN_13;
+	    GPIOB->ODR |= GPIO_PIN_13;
+	    HAL_Delay(500);
+#else
+		for (int i=0; i < 4; i++)
+		{
+		    HAL_SPI_Transmit(&hspi2, &led_buff[i], 1, 1);
+		    GPIOB->ODR &= ~ GPIO_PIN_13;   // latch핀을 pull-down
+			GPIOB->ODR |= GPIO_PIN_13;   //  // latch핀을 pull-up
+			HAL_Delay(1000);
+		}
+#endif
 //		flower_on();
 //		(*GPIOB).ODR |= GPIO_PIN_0;		// LED0 ON
 //		GPIOB->ODR ^= GPIO_PIN_1;		// LED1 toggle 반전
@@ -169,11 +192,11 @@ void led_main(void)
 //		flower_off();
 //		HAL_Delay(100);
 
-		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-		for(int i=0; i< 50; i++)
-		{
-			delay_us(1000);
-		}
+//		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+//		for(int i=0; i< 50; i++)
+//		{
+//			delay_us(1000);
+//		}
 	}
 }
 

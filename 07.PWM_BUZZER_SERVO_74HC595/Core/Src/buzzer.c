@@ -1,4 +1,6 @@
 #include "buzzer.h"
+#include "button.h"
+#include "extern.h"
 /*************************************************************************************************************
 
 	옥타브 및 음계별 주파수표(단위:Hz)
@@ -59,7 +61,9 @@ STM32에서 주파수를 만들 때 3개의 레지스터를 설정한다.
  ARR = 399; Duty : 50% - 399(ARR) * 50(퍼센트) / 100 = 199
  CCRx = 199
  */
-extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim3;
+
+void buzzer_main();
 
 enum notes
 {
@@ -91,9 +95,11 @@ unsigned int happy_birthday[] =
 
  unsigned int duration[] = {1,1,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,2,1,1,2,2,2,2};
 
+
+
 void noTone()
 {
-     htim1.Instance->CCR1=0;
+     htim3.Instance->CCR1=0;
      HAL_Delay(50);
 }
 
@@ -101,8 +107,75 @@ void set_buzzer(int frequency)
 {
 	int divide_freq = 1600000; // 4KHZ 부저 주파수를 내기 위해 기본 클럭을 분주해서 얻은 주파수
 
-	__HAL_TIM_SET_AUTORELOAD(&htim1, divide_freq / frequency); // PWM
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, divide_freq / frequency / 2);  // Duty를 50%로 설정 한다.
+	__HAL_TIM_SET_AUTORELOAD(&htim3, divide_freq / frequency); // PWM
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, divide_freq / frequency / 2);  // Duty를 50%로 설정 한다.
+}
+
+void close_buzzer()
+{
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+
+	set_buzzer(1000); // 1kHz로 세팅
+	HAL_Delay(70);
+	set_buzzer(2000); // 2kHz로 세팅
+	HAL_Delay(70);
+	set_buzzer(3000); // 3kHz로 세팅
+	HAL_Delay(70);
+	set_buzzer(4000); // 4kHz로 세팅
+	HAL_Delay(70);
+
+	HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+}
+
+void open_Buzzer()
+{
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+
+	set_buzzer(261); // 261Hz로 세팅
+	HAL_Delay(70);
+	set_buzzer(329); // 329Hz로 세팅
+	HAL_Delay(70);
+	set_buzzer(392); // 392Hz로 세팅
+	HAL_Delay(70);
+	set_buzzer(554); // 554Hz로 세팅
+	HAL_Delay(70);
+
+	HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+}
+
+
+void fire_engine_sound()
+{
+	int sound_toggle = 0;
+	int hlz = 700;
+
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+
+	while(1)
+	{
+		if(hlz > 1500)
+		{
+			sound_toggle = 1;
+		}
+
+		if(hlz < 700)
+		{
+			sound_toggle = 0;
+		}
+
+		if(!sound_toggle)
+		{
+			hlz = hlz + 15;
+			set_buzzer(hlz);
+			HAL_Delay(30);
+		}
+		else
+		{
+			hlz = hlz - 15;
+			set_buzzer(hlz);
+			HAL_Delay(30);
+		}
+	}
 }
 
 void siren(int repeat)
@@ -110,13 +183,13 @@ void siren(int repeat)
 	int frequency=1111; // 1.1kHz로 세팅
 
 	set_buzzer(frequency);
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
 	for (int i=0; i < repeat; i++)
 	{
 		for (int j=0; j < 100; j++)
 		{
-			frequency += 10;  // 100kHz로 add
+			frequency += 10;  // 10Hz로 add
 			set_buzzer(frequency);
 			HAL_Delay(20);
 		}
@@ -128,12 +201,12 @@ void siren(int repeat)
 		}
 	    noTone();
 	}
-	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 }
 
 void rrr(void)
 {
-	 HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	 HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
 	for (int i=0; i < 20; i++)
 	{
@@ -142,12 +215,12 @@ void rrr(void)
 	    noTone();
 	    HAL_Delay(20);
 	}
-	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 }
 
 void beep(int repeat)
 {
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
     for (int i=0; i < repeat; i++)
     {
@@ -157,16 +230,35 @@ void beep(int repeat)
     	noTone();
        	HAL_Delay(200);
     }
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 }
 
 void buzzer_main()
 {
    int divide_freq = 1600000; // 4KHZ 부저 주파수를 내기 위해 기본 클럭을 분주해서 얻은 주파수
+   int buzzer_toggle = 0;
 
+#if 1
+   fire_engine_sound();
+#endif
   while (1)
   {
-#if 1
+#if 0
+	  if(get_button(GPIOC, GPIO_PIN_0, BTN0) == BUTTON_PRESS)
+	  {
+		  buzzer_toggle=!buzzer_toggle;
+		  if(buzzer_toggle)
+		  {
+			  open_Buzzer();
+
+		  }
+		  else
+		  {
+			  close_buzzer();
+		  }
+	  }
+#endif
+#if 0
 	  beep(5);
 	  HAL_Delay(1000);
 	  rrr();
@@ -178,30 +270,30 @@ void buzzer_main()
 	// 학교 종이 땡땡땡
     for (int i=0; i < 24; i++)
     {
-		__HAL_TIM_SET_AUTORELOAD(&htim1, divide_freq / school_bell[i]);
-		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, divide_freq / school_bell[i] / 2);  // Duty를 50%로 설정 한다.
+		__HAL_TIM_SET_AUTORELOAD(&htim3, divide_freq / school_bell[i]);
+		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, divide_freq / school_bell[i] / 2);  // Duty를 50%로 설정 한다.
 		HAL_Delay(500);
 		noTone();  /* note 소리 내고 50ms 끊어주기 */
     }
 
     /* 음악 끝나고 3초 후 시작*/
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1) ;
+    HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1) ;
     HAL_Delay(3000);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1) ;
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1) ;
 
     // happy birthday to you
     for (int i=0; i < 25; i++)
     {
-		__HAL_TIM_SET_AUTORELOAD(&htim1, divide_freq / happy_birthday[i]);
-		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, divide_freq / happy_birthday[i] / 2);
+		__HAL_TIM_SET_AUTORELOAD(&htim3, divide_freq / happy_birthday[i]);
+		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, divide_freq / happy_birthday[i] / 2);
 		HAL_Delay(300*duration[i]);
 		noTone();
     }
 
     /* 음악 끝나고 3초 후 시작 */
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1) ;
+    HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1) ;
     HAL_Delay(3000);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1) ;
+    HAL_TIM_PWM_Start(&htim3 ,TIM_CHANNEL_1) ;
 #endif
   }
 }
