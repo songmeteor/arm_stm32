@@ -70,7 +70,6 @@ void alarm_operate(int *current_mode)
 
 	if(lcd_toggle)
 	{
-
 		display_alarm_wake_up();
 	}
 	else
@@ -155,56 +154,13 @@ void ds1302_clock(int *current_mode)
 	read_date_ds1302();
 	pc_command_processing();
 
-//	if(TIM11_1ms_counter > 1000)
-//	{
-		TIM11_1ms_counter = 0;
-		if(ds1302_alarm.hours ==0 && ds1302_alarm.minutes == 0 && ds1302_alarm.seconds ==0)
-		{
-			display_date_time();
-		}
-		else
-		{
-			display_alarm_clock_on();
-		}
-//	}
-}
-
-void ds1302_main()
-{
-	//init_date_time();
-	init_gpio_ds1302();
-	flash_set_time();
-	flash_read((uint32_t *)&ds1302, sizeof(ds1302));
-	init_ds1302();
-
-	while(1)
+	if(ds1302_alarm.hours ==0 && ds1302_alarm.minutes == 0 && ds1302_alarm.seconds ==0)
 	{
-		if(TIM11_1ms_counter2>10000)
-		{
-			flash_erase();
-			flash_write((uint32_t *)&ds1302, sizeof(ds1302));
-			TIM11_1ms_counter2=0;
-		}
-		read_time_ds1302();
-		read_date_ds1302();
-		pc_command_processing();
-		//set_RTC((char*)rx_buff[front]);
-		if(TIM11_1ms_counter > 1000)
-		{
-			TIM11_1ms_counter = 0;
-			display_date_time();
-			// 날짜와 시각을 출력
-			if(o_prt.p_rtc)
-			{
-				printf(" %4d-%2d-%2d %2d:%2d:%2d\n",
-						ds1302.year+2000,
-						ds1302.month,
-						ds1302.date,
-						ds1302.hours,
-						ds1302.minutes,
-						ds1302.seconds);
-			}
-		}
+		display_date_time();
+	}
+	else
+	{
+		display_alarm_clock_on();
 	}
 }
 
@@ -235,8 +191,6 @@ void display_alarm_clock_on(void)
 	lcd_string(icd_buff);
 }
 
-
-
 void display_alarm_clock(void)
 {
 	char icd_buff[40];
@@ -250,7 +204,6 @@ void display_alarm_clock(void)
 	lcd_string(icd_buff);
 }
 
-
 void display_date_time(void)
 {
 	char icd_buff[40];
@@ -263,7 +216,6 @@ void display_date_time(void)
 	move_cursor(1,0);
 	lcd_string(icd_buff);
 }
-
 
 void read_time_ds1302()
 {
