@@ -75,6 +75,7 @@ const osThreadAttr_t myTask03_attributes = {
 uint8_t rx_data; //uart2 rx byte
 volatile int TIM11_1ms_counter = 0;
 volatile int TIM11_1ms_counter2 = 0;
+volatile int TIM11_1ms_counter3 = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -661,6 +662,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim->Instance == TIM11) {
 	  TIM11_1ms_counter++;
 	  TIM11_1ms_counter2++;
+	  TIM11_1ms_counter3++;
   }
   /* USER CODE END Callback 1 */
 }

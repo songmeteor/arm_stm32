@@ -15,6 +15,7 @@ extern TIM_HandleTypeDef htim2;
 //extern volatile int front; //output index
 extern volatile int TIM11_1ms_counter;
 extern volatile int TIM11_1ms_counter2;
+extern volatile int TIM11_1ms_counter3;
 extern t_print o_prt;
 
 extern void led_main(void);
@@ -40,7 +41,7 @@ extern void buzzer_main();
 extern void servo_motor_main(void);
 
 extern void dotmatrix_main_test();
-extern int dotmatrix_main_func(void);
+extern int dotmatrix_main_func(int *count, int *index, uint32_t *past_time, uint8_t *temp, int *current_mode);
 extern void elevator_main(void);
 
 
