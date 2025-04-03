@@ -80,8 +80,12 @@ void Error_Handler(void);
 #define LD2_GPIO_Port GPIOA
 #define Buzzer_Pin GPIO_PIN_6
 #define Buzzer_GPIO_Port GPIOA
-#define LATCH_Pin GPIO_PIN_13
-#define LATCH_GPIO_Port GPIOB
+#define CLK_74HC595_Pin GPIO_PIN_10
+#define CLK_74HC595_GPIO_Port GPIOB
+#define LATCH_74HC595_Pin GPIO_PIN_13
+#define LATCH_74HC595_GPIO_Port GPIOB
+#define SER_74HC595_Pin GPIO_PIN_15
+#define SER_74HC595_GPIO_Port GPIOB
 #define CE_DS1302_Pin GPIO_PIN_10
 #define CE_DS1302_GPIO_Port GPIOA
 #define IO_DS1302_Pin GPIO_PIN_11

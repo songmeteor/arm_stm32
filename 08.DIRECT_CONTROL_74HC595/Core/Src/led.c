@@ -152,7 +152,7 @@ void flower_off(void)
 #endif
 }
 
-extern SPI_HandleTypeDef hspi2;
+//extern SPI_HandleTypeDef hspi2;
 
 void led_main(void)
 {
@@ -162,11 +162,11 @@ void led_main(void)
 	 while (1)
 	{
 #if 1
-		HAL_SPI_Transmit(&hspi2,led_buff, 1, 1);
+		//HAL_SPI_Transmit(&hspi2,led_buff, 1, 1);
 		GPIOB->ODR &= ~GPIO_PIN_13;   // latch핀을 pull-down ODR(Output Data Register)
 		GPIOB->ODR |= GPIO_PIN_13;    // latch핀을 pull-up ODR(Output Data Register)
 		HAL_Delay(500);
-		HAL_SPI_Transmit(&hspi2,&led_buff[3], 1, 1);
+		//HAL_SPI_Transmit(&hspi2,&led_buff[3], 1, 1);
 		GPIOB->ODR &= ~ GPIO_PIN_13;
 	    GPIOB->ODR |= GPIO_PIN_13;
 	    HAL_Delay(500);
