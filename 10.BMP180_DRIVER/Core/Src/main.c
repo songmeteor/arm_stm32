@@ -164,35 +164,35 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim11);
   HAL_TIM_Base_Start_IT(&htim2);  //for make delay_us
 
-  keypadInit();
+  //keypadInit();
 
-  // BMP180 초기화
-  if (BMP180_Init(&hbmp180, &hi2c1) != HAL_OK)
-  {
-      Error_Handler();
-  }
-
-  // BMP180 테스트
-  while(1)
-  {
-      float temperature, pressure;
-      
-      // 온도 읽기
-      if (BMP180_ReadTemperature(&hbmp180) == HAL_OK)
-      {
-          temperature = BMP180_GetTemperature(&hbmp180);
-          printf("Temperature: %.1f°C\r\n", temperature);
-      }
-      
-      // 압력 읽기
-      if (BMP180_ReadPressure(&hbmp180) == HAL_OK)
-      {
-          pressure = BMP180_GetPressure(&hbmp180);
-          printf("Pressure: %.2f hPa\r\n", pressure);
-      }
-      
-      HAL_Delay(1000); // 1초 대기
-  }
+//  // BMP180 초기화
+//  if (BMP180_Init(&hbmp180, &hi2c1) != HAL_OK)
+//  {
+//      Error_Handler();
+//  }
+//
+//  // BMP180 테스트
+//  while(1)
+//  {
+//      float temperature, pressure;
+//
+//      // 온도 읽기
+//      if (BMP180_ReadTemperature(&hbmp180) == HAL_OK)
+//      {
+//          temperature = BMP180_GetTemperature(&hbmp180);
+//          printf("Temperature: %.1f°C\r\n", temperature);
+//      }
+//
+//      // 압력 읽기
+//      if (BMP180_ReadPressure(&hbmp180) == HAL_OK)
+//      {
+//          pressure = BMP180_GetPressure(&hbmp180);
+//          printf("Pressure: %.2f hPa\r\n", pressure);
+//      }
+//
+//      HAL_Delay(1000); // 1초 대기
+//  }
   //dotmatrix_main_func();
   //dotmatrix_main_test();
   //led_main();
