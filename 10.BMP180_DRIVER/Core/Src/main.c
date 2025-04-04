@@ -80,7 +80,8 @@ uint8_t rx_data; //uart2 rx byte
 volatile int TIM11_1ms_counter = 0;
 volatile int TIM11_1ms_counter2 = 0;
 volatile int TIM11_keypad_scan_timer = 0;
-BMP180_HandleTypeDef hbmp180;
+BMP180_get_cal_param bmp;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -166,18 +167,34 @@ int main(void)
 
   //keypadInit();
 
-//  // BMP180 초기화
-//  if (BMP180_Init(&hbmp180, &hi2c1) != HAL_OK)
-//  {
-//      Error_Handler();
+//  if (HAL_I2C_IsDeviceReady(&hi2c1, 0xEE, 3, 100) == HAL_OK) {
+//      printf("BMP180 detected at 0x77\n");
+//  } else if (HAL_I2C_IsDeviceReady(&hi2c1, 0xEC, 3, 100) == HAL_OK) {
+//      printf("BMP180 detected at 0x76\n");
+//  } else {
+//      printf("BMP180 not detected!\n");
 //  }
-//
-//  // BMP180 테스트
-//  while(1)
-//  {
-//      float temperature, pressure;
-//
-//      // 온도 읽기
+
+   if (BMP180_init(&bmp) != HAL_OK)
+   {
+       Error_Handler();
+   }
+
+   while(1)
+   {
+    	if(BMP180_read_temp(&bmp) == HAL_OK)
+    	{
+    		printf("Temp = %1.fC\n", (float)bmp.temp);
+    	}
+
+    	if(BMP180_read_pres(&bmp) == HAL_OK)
+		{
+    		printf("Pres = %2.fhPa\n", (float)bmp.pres);
+		}
+
+    	HAL_Delay(1000);
+    }
+
 //      if (BMP180_ReadTemperature(&hbmp180) == HAL_OK)
 //      {
 //          temperature = BMP180_GetTemperature(&hbmp180);
