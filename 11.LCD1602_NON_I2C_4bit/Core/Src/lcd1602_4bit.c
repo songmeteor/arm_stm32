@@ -11,14 +11,14 @@ void lcd_4bit_test(void)
 	lcd_set_cursor(0,0);
 	lcd_send_string("Hello World!");
 
-	int cnt = 0;     // 카운트를 위한 숫자 변수
-	char buffer[16]; // 문자열 생성을 위한 변수
+	int cnt = 0;
+	char buffer[16];
 	while (1)
 	{
-		lcd_set_cursor(1, 0);               // 커서 1, 0 이동
-		sprintf(buffer, "cnt: %d", cnt); // 카운트를 표시하는 문자열 생성
-		lcd_send_string(buffer);         // LCD 문자열 표시
-		cnt++;                           // cmd 1 더함
+		lcd_set_cursor(1, 0);
+		sprintf(buffer, "cnt: %d", cnt);
+		lcd_send_string(buffer);
+		cnt++;
 	    HAL_Delay(1000);
 	}
 }
@@ -26,9 +26,9 @@ void lcd_4bit_test(void)
 void pulse_en()
 {
     HAL_GPIO_WritePin(LCD_EN_GPIO_Port, LCD_EN_Pin, 1);
-    delay_us(20);   //data 상에 Tpw = 140ns
+    delay_us(20);   //data 상에 Tpw = 140ns 이상 대기
     HAL_GPIO_WritePin(LCD_EN_GPIO_Port, LCD_EN_Pin, 0);
-    delay_us(20);	//data 상에 Tpw = 140ns
+    delay_us(20);	//data 상에 Tpw = 140ns 이상 대기
 }
 
 void lcd_send_4bit(char data)
@@ -58,7 +58,8 @@ void lcd_clear_display(void)
 void lcd_send_string(char *str)
 {
 	HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, 1); // 문자 전송 모드
-	while (*str) {
+	while (*str)
+	{
 		lcd_send_8bit(*str++);
 	}
 }
@@ -66,7 +67,8 @@ void lcd_send_string(char *str)
 void lcd_set_cursor(int row, int col)
 {
 	HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, 0); // 설정 모드
-    switch (row) {
+    switch (row)
+    {
         case 0:
             col |= 0x80;
             break;
@@ -85,7 +87,7 @@ void lcd_set_cursor(int row, int col)
 void lcd_init(void)
 {
 	HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, 0); // RS = 0 이면 설정모드, RS = 1 이면 Write/Read 모드
-	//HAL_GPIO_WritePin(LCD_RW_GPIO_Port, LCD_RW_Pin, 0); // RW = 0 이면 쓰기, RW = 1 이면 읽기
+	HAL_GPIO_WritePin(LCD_RW_GPIO_Port, LCD_RW_Pin, 0); // RW = 0 이면 쓰기, RW = 1 이면 읽기
 
     HAL_Delay(50);         // 15ms 이상 대기
 
@@ -93,9 +95,9 @@ void lcd_init(void)
     HAL_Delay(5);          // 4.1ms 이상 대기
     lcd_send_4bit(SET_4BIT_MODE);
     HAL_Delay(1);          // 100us 이상 대기
-    lcd_send_4bit(SET_4BIT_MODE); //4bit mode 설정
+    lcd_send_4bit(SET_4BIT_MODE);
     HAL_Delay(1);
-    lcd_send_4bit(0b0010);
+    lcd_send_4bit(0b0010);  //4bit mode 설정
     HAL_Delay(1);
 
     lcd_send_8bit(0b00101000); // Function set -> 4번 bit DL=0, 3번 bit N=1, 2번 bit F=0 -> 4bit, 2줄, 5x7 도트
