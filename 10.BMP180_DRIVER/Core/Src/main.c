@@ -20,9 +20,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -201,14 +198,14 @@ int main(void)
 //          printf("Temperature: %.1f¬∞C\r\n", temperature);
 //      }
 //
-//      // ÏïïÎ†• ÏùΩÍ∏∞
+//      // ?ïï?†• ?ùΩÍ∏?
 //      if (BMP180_ReadPressure(&hbmp180) == HAL_OK)
 //      {
 //          pressure = BMP180_GetPressure(&hbmp180);
 //          printf("Pressure: %.2f hPa\r\n", pressure);
 //      }
 //
-//      HAL_Delay(1000); // 1Ï¥à ÎåÄÍ∏∞
+//      HAL_Delay(1000); // 1Ï¥? ??Í∏?
 //  }
   //dotmatrix_main_func();
   //dotmatrix_main_test();
@@ -598,7 +595,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, LD2_Pin|CE_DS1302_Pin|IO_DS1302_Pin|CLK_DS1302_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, CLK_74HC595_Pin|LATCH_74HC595_Pin|SER_74HC595_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LCD_RS_Pin|LCD_RW_Pin|LCD_EN_Pin|CLK_74HC595_Pin
+                          |LATCH_74HC595_Pin|SER_74HC595_Pin|LCD_D4_Pin|LCD_D5_Pin
+                          |LCD_D6_Pin|LCD_D7_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, COL1_KEYPAD_Pin|COL2_KEYPAD_Pin|COL3_KEYPAD_Pin|COL4_KEYPAD_Pin, GPIO_PIN_RESET);
@@ -628,8 +627,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CLK_74HC595_Pin LATCH_74HC595_Pin SER_74HC595_Pin */
-  GPIO_InitStruct.Pin = CLK_74HC595_Pin|LATCH_74HC595_Pin|SER_74HC595_Pin;
+  /*Configure GPIO pins : LCD_RS_Pin LCD_RW_Pin LCD_EN_Pin CLK_74HC595_Pin
+                           LATCH_74HC595_Pin SER_74HC595_Pin LCD_D4_Pin LCD_D5_Pin
+                           LCD_D6_Pin LCD_D7_Pin */
+  GPIO_InitStruct.Pin = LCD_RS_Pin|LCD_RW_Pin|LCD_EN_Pin|CLK_74HC595_Pin
+                          |LATCH_74HC595_Pin|SER_74HC595_Pin|LCD_D4_Pin|LCD_D5_Pin
+                          |LCD_D6_Pin|LCD_D7_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
