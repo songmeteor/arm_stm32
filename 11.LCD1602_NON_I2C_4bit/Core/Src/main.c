@@ -181,7 +181,7 @@ int main(void)
    		lcd_send_string(buffer);
    		lcd_send_8bit(0xDF); // '°' 문자 전송
    		lcd_send_8bit('C');  // 'C' 문자 전송
-   		//printf("Temp = %1.fC\n", (float)bmp.temp);
+   		printf("Temp = %1.fC\n", (float)bmp.temp);
    	}
 
    	if(BMP180_read_pres(&bmp) == HAL_OK)
@@ -189,7 +189,7 @@ int main(void)
    		lcd_set_cursor(1,0);
    		sprintf(buffer, "Pres = %2.fhPa", (float)bmp.pres);
    		lcd_send_string(buffer);
-   		//printf("Pres = %2.fhPa\n", (float)bmp.pres);
+   		printf("Pres = %2.fhPa\n", (float)bmp.pres);
 	}
    		HAL_Delay(1000);
    }

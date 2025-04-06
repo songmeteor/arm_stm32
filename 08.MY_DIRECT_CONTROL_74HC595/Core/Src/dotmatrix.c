@@ -595,10 +595,10 @@ void init_dotmatrix(uint8_t matrix[][10])
 {
 	memset(display_data, 0, sizeof(display_data));
 
-//	for (int i=0; i < 8; i++)
-//	{
-//		display_data[i] = matrix[i];
-//	}
+	for (int i=0; i < 8; i++)
+	{
+		display_data[i] = matrix[i];
+	}
 	for (int i=1; i < number_of_character+1; i++)
 	{
 		for (int j=0; j < 8; j++) // scroll_buffer[0] = blank

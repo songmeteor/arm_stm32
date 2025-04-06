@@ -7,13 +7,18 @@
 uint8_t us_count = 0;
 enum state_define dht11_state = OK;	// 앞으로 관리할 state변수 생성 (초기값 OK)
 
+int i = 0;
+int j = 7;
+
 void dht11_main(void);
+void low_check(void);
+void high_check(void);
 
 void init_dht11(void)
 {
 	*(unsigned int *)GPIOA_MODER |= 1<<DHT_PIN_NUM;    //output mode
 	*(unsigned int *)GPIOA_MODER &= ~(1<<(DHT_PIN_NUM+1));
-	*(unsigned int *)GPIOA_ODR |= 1<<DHT_PIN_NUM; //GPIOA 0
+	*(unsigned int *)GPIOA_ODR |= 1<<DHT_PIN_NUM; //GPIOA 1
 }
 
 
@@ -47,51 +52,18 @@ void dht11_main(void)
         *(unsigned int *)GPIOA_MODER &= ~(1<<DHT_PIN_NUM | 1 << (DHT_PIN_NUM+1)); // input mode
         delay_us(1);
 
-        // response check
-        us_count = 0;
-        while(((*(unsigned int *)GPIOA_IDR) & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM)
-        {
-        	delay_us(2);
-            us_count += 2;
-            if(us_count > 50) // 50us만큼 기다렸는데도 high면 error
-            {
-                dht11_state = TIMEOUT;
-                break;
-            }
-        }
+        low_check();
 
         //========= step2 : response signal check ================
         if(dht11_state == OK) // 정상 상태면 DATA pin이 LOW이다.
         {
-            // response check
-            us_count = 0;
-            while(!(((*(unsigned int *)GPIOA_IDR) & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM)) // LOW 일동안 반복
-            {
-            	delay_us(2);
-                us_count += 2;
-                if(us_count > 100) // spec에는 80us인데 여유를 둬서 100us만큼 기다렸는데도 low 면 error
-                {
-                    dht11_state = TIMEOUT;
-                    break;
-                }
-            }
+        	high_check();
         }
 
         //response HIGH check
         if(dht11_state == OK) // 정상 상태면 DATA pin이 LOW이다.
         {
-            // response check
-            us_count = 0;
-            while(((*(unsigned int *)GPIOA_IDR) & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM) //  high 일동안 반복
-            {
-            	delay_us(2);
-                us_count += 2;
-                if(us_count > 100) // spec에는 80us인데 여유를 둬서 100us만큼 기다렸는데도 low 면 error
-                {
-                    dht11_state = TIMEOUT;
-                    break;
-                }
-            }
+        	low_check();
         }
 
         //=============== step3 data bit 수신 from DHT11======================
@@ -99,40 +71,15 @@ void dht11_main(void)
         {
             uint8_t pulse[8] = {0,}; //8개의 pulse를 담는 그릇(변수)
 
-            for(int i = 0; i < 5; i++)  //5 bytes 이니까
+            for(i = 0; i < 5; i++)  //5 bytes 이니까
             {
-                for(int j = 7; j >= 0; j--) //byte당 8bit
+                for(j = 7; j >= 0; j--) //byte당 8bit
                 {
-                    //LOW 확인 50us check
-                    us_count = 0;
-                    while(!(((*(unsigned int *)GPIOA_IDR) & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM)) // LOW 일동안 반복
-                    {
-                    	delay_us(2);
-                        us_count += 2;
-                        if(us_count > 70) // spec에는 50us인데 여유를 둬서 70us만큼 기다렸는데도 low 면 error
-                        {
-                            dht11_state = TIMEOUT;
-                            i = 5;
-                            j = -1; //for문 전체 탈출
-                            break;
-                        }
-                    }
+                	high_check();
 
                     if(dht11_state == OK)
                     {
-                        us_count = 0;
-                        while(((*(unsigned int *)GPIOA_IDR) & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM) // HIGH 일동안 반복
-                        {
-                        	delay_us(2);
-                            us_count += 2;
-                            if(us_count > 90) // '0' : HIGH 길이 : 26~28us '1' : HIGH 길이 70us 인데 이것보다 길게 90us
-                            {
-                                dht11_state = TIMEOUT;
-                                j = -1; //for문 전체 탈출
-                                i = 5;
-                                break;
-                            }
-                        }
+                    	low_check();
 
                         if(dht11_state == OK)
                         {
@@ -182,3 +129,40 @@ void dht11_main(void)
         }
     }
 }
+
+void high_check(void)
+{
+	us_count = 0;
+	while(!(((*(unsigned int *)GPIOA_IDR) & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM)) // LOW 일동안 반복
+	{
+		delay_us(2);
+	    us_count += 2;
+	    if(us_count > 90) // spec에는 50us인데 여유를 둬서 70us만큼 기다렸는데도 low 면 error
+	    {
+	        dht11_state = TIMEOUT;
+	        i = 5;
+	        j = -1; //for문 전체 탈출
+	        break;
+	    }
+	}
+}
+
+void low_check(void)
+{
+    us_count = 0;
+    while(((*(unsigned int *)GPIOA_IDR) & 1 << DHT_PIN_NUM) >> DHT_PIN_NUM) // HIGH 일동안 반복
+    {
+    	delay_us(2);
+        us_count += 2;
+        if(us_count > 90) // '0' : HIGH 길이 : 26~28us '1' : HIGH 길이 70us 인데 이것보다 길게 90us
+        {
+            dht11_state = TIMEOUT;
+            j = -1; //for문 전체 탈출
+            i = 5;
+            break;
+        }
+    }
+}
+
+
+

@@ -25,9 +25,11 @@ void lcd_4bit_test(void)
 
 void pulse_en()
 {
-    HAL_GPIO_WritePin(LCD_EN_GPIO_Port, LCD_EN_Pin, 1);
+    *(unsigned int *)GPIOB_ODR |= 1 << 2;
+	//HAL_GPIO_WritePin(LCD_EN_GPIO_Port, LCD_EN_Pin, 1);
     delay_us(20);   //data 상에 Tpw = 140ns 이상 대기
-    HAL_GPIO_WritePin(LCD_EN_GPIO_Port, LCD_EN_Pin, 0);
+    *(unsigned int *)GPIOB_ODR &= ~(1 << 2);
+    //HAL_GPIO_WritePin(LCD_EN_GPIO_Port, LCD_EN_Pin, 0);
     delay_us(20);	//data 상에 Tpw = 140ns 이상 대기
 }
 
@@ -35,10 +37,16 @@ void lcd_send_4bit(char data)
 {
 	//data 는 4bit
 	// ex) 0b0011
-    HAL_GPIO_WritePin(LCD_D7_GPIO_Port, LCD_D7_Pin, ((data >> 3) & 0x01)); //0b00000100 & 1 => 0
-    HAL_GPIO_WritePin(LCD_D6_GPIO_Port, LCD_D6_Pin, ((data >> 2) & 0x01)); //0b00001000 & 1 => 0
-    HAL_GPIO_WritePin(LCD_D5_GPIO_Port, LCD_D5_Pin, ((data >> 1) & 0x01)); //0b00010001 & 1 => 1
-    HAL_GPIO_WritePin(LCD_D4_GPIO_Port, LCD_D4_Pin, (data & 0x01));        //0b00100011 & 1 => 1
+
+	((data >> 3) & 0x01) ? (*(unsigned int *)GPIOB_ODR |= 1 << 7) : (*(unsigned int *)GPIOB_ODR &= ~(1 << 7));
+	((data >> 2) & 0x01) ? (*(unsigned int *)GPIOB_ODR |= 1 << 6) : (*(unsigned int *)GPIOB_ODR &= ~(1 << 6));
+	((data >> 1) & 0x01) ? (*(unsigned int *)GPIOB_ODR |= 1 << 5) : (*(unsigned int *)GPIOB_ODR &= ~(1 << 5));
+	(data & 0x01) ? (*(unsigned int *)GPIOB_ODR |= 1 << 4) : (*(unsigned int *)GPIOB_ODR &= ~(1 << 4));
+
+//    HAL_GPIO_WritePin(LCD_D7_GPIO_Port, LCD_D7_Pin, ((data >> 3) & 0x01)); //0b00000100 & 1 => 0
+//    HAL_GPIO_WritePin(LCD_D6_GPIO_Port, LCD_D6_Pin, ((data >> 2) & 0x01)); //0b00001000 & 1 => 0
+//    HAL_GPIO_WritePin(LCD_D5_GPIO_Port, LCD_D5_Pin, ((data >> 1) & 0x01)); //0b00010001 & 1 => 1
+//    HAL_GPIO_WritePin(LCD_D4_GPIO_Port, LCD_D4_Pin, (data & 0x01));        //0b00100011 & 1 => 1
     pulse_en();
 }
 
@@ -50,14 +58,16 @@ void lcd_send_8bit(char data) // 8bit data 4bit로 두번 나눠서 전송
 
 void lcd_clear_display(void)
 {
-	HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, 0); // 설정 모드
+	*(unsigned int *)GPIOB_ODR &= ~(1 << 0);
+	//HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, 0); // 설정 모드
 	lcd_send_8bit(0b00000001);
 	HAL_Delay(2);
 }
 
 void lcd_send_string(char *str)
 {
-	HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, 1); // 문자 전송 모드
+	*(unsigned int *)GPIOB_ODR |= 1 << 0;
+	//HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, 1); // 문자 전송 모드
 	while (*str)
 	{
 		lcd_send_8bit(*str++);
@@ -66,7 +76,8 @@ void lcd_send_string(char *str)
 
 void lcd_set_cursor(int row, int col)
 {
-	HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, 0); // 설정 모드
+	*(unsigned int *)GPIOB_ODR &= ~(1 << 0);
+	//HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, 0); // 설정 모드
     switch (row)
     {
         case 0:
@@ -86,8 +97,11 @@ void lcd_set_cursor(int row, int col)
 
 void lcd_init(void)
 {
-	HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, 0); // RS = 0 이면 설정모드, RS = 1 이면 Write/Read 모드
-	HAL_GPIO_WritePin(LCD_RW_GPIO_Port, LCD_RW_Pin, 0); // RW = 0 이면 쓰기, RW = 1 이면 읽기
+	*(unsigned int *)GPIOB_ODR &= ~(1 << 0);
+	*(unsigned int *)GPIOB_ODR &= ~(1 << 1);
+
+	//HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, 0); // RS = 0 이면 설정모드, RS = 1 이면 Write/Read 모드
+	//HAL_GPIO_WritePin(LCD_RW_GPIO_Port, LCD_RW_Pin, 0); // RW = 0 이면 쓰기, RW = 1 이면 읽기
 
     HAL_Delay(50);         // 15ms 이상 대기
 
