@@ -70,7 +70,7 @@ HAL_StatusTypeDef BMP180_read_temp(BMP180_get_cal_param* bmp)
 	 long X2 = ((long)bmp->MC << 11) / (X1 + bmp->MD);
 	 bmp->B5 = X1 + X2;
 	 bmp->temp = (bmp->B5 + 8) >> 4;
-	 bmp->temp = bmp->temp / 10;
+	 //bmp->temp = bmp->temp / 10;
 
 	 return HAL_OK;
 }
@@ -122,7 +122,7 @@ HAL_StatusTypeDef BMP180_read_pres(BMP180_get_cal_param* bmp)
  	X1 = (X1 * 3038) >> 16;
  	X2 = (-7357 * bmp->pres) >> 16;
  	bmp->pres = bmp->pres + ((X1 + X2 + 3791) >> 4);
- 	bmp->pres = bmp->pres / 100;
+ 	//bmp->pres = bmp->pres / 100;
 
  	return HAL_OK;
 }
