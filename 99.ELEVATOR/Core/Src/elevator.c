@@ -13,13 +13,9 @@ void elevator_main(void);
 
 void elevator_main(void)
 {
-	if(get_button(GPIOC,BTN0_Pin, BTN0) == BUTTON_PRESS) target_floor[1] = !target_floor[1];
-	if(get_button(GPIOC,BTN1_Pin, BTN1) == BUTTON_PRESS) target_floor[2] = !target_floor[2];
-	if(get_button(GPIOC,BTN2_Pin, BTN2) == BUTTON_PRESS) target_floor[3] = !target_floor[3];
-	if(get_button(GPIOC,BTN3_Pin, BTN3) == BUTTON_PRESS) target_floor[4] = !target_floor[4];
-
 	if(current_door_state == close)
 	{
+		elevator_open_counter = 0;
 		switch(current_floor){
 		case first:
 			if(target_floor[2]||target_floor[3]||target_floor[4]) current_state = up;
@@ -52,12 +48,13 @@ void elevator_main(void)
 		if(current_state == up)
 		{
 			stepmotor_state = FORWARD;
+
 		}
 		else if(current_state == down)
 		{
 			stepmotor_state = BACKWARD;
 		}
-		else if(current_state = stop)
+		else if(current_state == stop)
 		{
 			stepmotor_state = IDLE;
 		}
@@ -65,10 +62,8 @@ void elevator_main(void)
 	}
 	else if(current_door_state == open)
 	{
-		elevator_open_counter++;
 		if(elevator_open_counter >= 3000)
 		{
-			elevator_open_counter = 0;
 			current_door_state = close;
 		}
 	}

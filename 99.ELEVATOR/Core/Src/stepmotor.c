@@ -8,6 +8,7 @@ void stepmotor_main(void);
 void set_rpm(int rpm);
 int stepmotor_drive(int step);
 void down_test(void);
+void up_test(void);
 
 /*
  * RPM(Revolutions Per Minutes : 분당 회전수
@@ -34,6 +35,12 @@ void set_rpm(int rpm)  // rpm : 1 ~ 13
 void down_test(void)
 {
 	stepmotor_drive(BACKWARD);
+	set_rpm(13);
+}
+
+void up_test(void)
+{
+	stepmotor_drive(FORWARD);
 	set_rpm(13);
 }
 

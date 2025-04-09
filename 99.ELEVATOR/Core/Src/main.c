@@ -97,6 +97,7 @@ volatile int TIM11_1ms_counter2 = 0;
 volatile int line0_timer = 0;
 volatile int line1_timer = 0;
 volatile int elevator_open_counter = 0;
+volatile led_toggle_counter = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -179,6 +180,9 @@ int main(void)
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
   i2c_lcd_init();
+  init_date_time();
+  init_gpio_ds1302();
+  init_ds1302();
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10 | GPIO_PIN_13 | GPIO_PIN_15, 0);
   HAL_Delay(10); // DOTMATRIX init
 
@@ -198,7 +202,14 @@ int main(void)
 //  {
 //	  down_test();
 //  }
-
+//while(1)
+//{
+//	up_test();
+//}
+//  while(1)
+// {
+//	 led_all_on();
+// }
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -253,13 +264,11 @@ int main(void)
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-	  button_led_toggle_test();
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+
   /* USER CODE END 3 */
 }
 
@@ -587,7 +596,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, LD2_Pin|CE_DS1302_Pin|IO_DS1302_Pin|CLK_DS1302_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, CLK_74HC595_Pin|LATCH_74HC595_Pin|SER_74HC595_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|CLK_74HC595_Pin
+                          |LATCH_74HC595_Pin|SER_74HC595_Pin|GPIO_PIN_3|GPIO_PIN_4
+                          |GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, IN1_Pin|IN2_Pin|IN3_Pin|IN4_Pin, GPIO_PIN_RESET);
@@ -617,8 +628,18 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CLK_74HC595_Pin LATCH_74HC595_Pin SER_74HC595_Pin */
-  GPIO_InitStruct.Pin = CLK_74HC595_Pin|LATCH_74HC595_Pin|SER_74HC595_Pin;
+  /*Configure GPIO pin : PC5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB0 PB1 PB2 CLK_74HC595_Pin
+                           LATCH_74HC595_Pin SER_74HC595_Pin PB3 PB4
+                           PB5 PB6 PB7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|CLK_74HC595_Pin
+                          |LATCH_74HC595_Pin|SER_74HC595_Pin|GPIO_PIN_3|GPIO_PIN_4
+                          |GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -637,6 +658,9 @@ static void MX_GPIO_Init(void)
 
   HAL_NVIC_SetPriority(EXTI4_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 
@@ -657,8 +681,8 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-    osDelay(50);
+	elevator_button();
+    osDelay(1);
   }
   /* USER CODE END 5 */
 }
@@ -744,6 +768,7 @@ void StartTask05(void *argument)
 	  if(osMutexWait(myMutex01Handle, 1000) == osOK) // lock key
 	  {
 		  stepmotor_main();
+		  led_elevator();
 		  osMutexRelease(myMutex01Handle); // unlock key
 	  }
 
@@ -775,6 +800,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 line0_timer++;
 line1_timer++;
 	  elevator_open_counter++;
+	  led_toggle_counter++;
   }
   /* USER CODE END Callback 1 */
 }

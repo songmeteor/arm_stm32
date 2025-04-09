@@ -16,36 +16,58 @@ extern int target_floor[5];
   * @retval None
   */
 
+uint32_t last_time_pin0 = 0;
+uint32_t last_time_pin4 = 0;
+uint32_t last_time_pin5 = 0;
+uint32_t last_time_pin7 = 0;
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	switch(GPIO_Pin){
-	case GPIO_PIN_0:   //PA0  / BTN0
-		current_floor = first;
-		current_door_state = open;
-		stepmotor_state = IDLE;
-		target_floor[1] = 0;
-		printf("first\n");
-		break;
-	case GPIO_PIN_4:   //PA0  / BTN0
-		current_floor = second;
-		current_door_state = open;
-		stepmotor_state = IDLE;
-		target_floor[2] = 0;
-		printf("second\n");
-		break;
-	case GPIO_PIN_5:   //PA0  / BTN0
-		current_floor = third;
-		current_door_state = open;
-		stepmotor_state = IDLE;
-		target_floor[3] = 0;
-		printf("third\n");
-		break;
-	case GPIO_PIN_7:   //PA0  / BTN0
-		current_floor = fourth;
-		current_door_state = open;
-		stepmotor_state = IDLE;
-		target_floor[4] = 0;
-		printf("fourth\n");
-		break;
-	}
+    uint32_t now = HAL_GetTick();
+
+    switch(GPIO_Pin){
+        case GPIO_PIN_0:
+        	if(target_floor[1] == 0) return;
+            if (now - last_time_pin0 < 200) return;
+            last_time_pin0 = now;
+            current_floor = first;
+            current_door_state = open;
+            stepmotor_state = IDLE;
+            target_floor[1] = 0;
+            printf("first\n");
+            break;
+
+        case GPIO_PIN_4:
+        	if(target_floor[2] == 0) return;
+            if (now - last_time_pin4 < 200) return;
+            last_time_pin4 = now;
+            current_floor = second;
+            current_door_state = open;
+            stepmotor_state = IDLE;
+            target_floor[2] = 0;
+            printf("second\n");
+            break;
+
+        case GPIO_PIN_5:
+        	if(target_floor[3] == 0) return;
+            if (now - last_time_pin5 < 200) return;
+            last_time_pin5 = now;
+            current_floor = third;
+            current_door_state = open;
+            stepmotor_state = IDLE;
+            target_floor[3] = 0;
+            printf("third\n");
+            break;
+
+        case GPIO_PIN_7:
+        	if(target_floor[4] == 0) return;
+            if (now - last_time_pin7 < 200) return;
+            last_time_pin7 = now;
+            current_floor = fourth;
+            current_door_state = open;
+            stepmotor_state = IDLE;
+            target_floor[4] = 0;
+            printf("fourth\n");
+            break;
+    }
 }

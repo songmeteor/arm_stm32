@@ -1,5 +1,48 @@
-# include "led.h"
-# include "extern.h"
+#include "led.h"
+#include "extern.h"
+#include "elevator.h"
+
+extern enum CURRENT_FLOOR current_floor;
+extern enum CURRENT_STATE current_state;
+extern enum CURRENT_DOOR_STATE current_door_state;
+extern volatile led_toggle_counter;
+
+void led_elevator();
+void led_all_on(void);
+
+void led_elevator()
+{
+	uint8_t led_mask = 0;
+	uint8_t led_toggle_mask = 0;
+
+    for (int i = 0; i < current_floor; i++) {
+        led_mask |= (1 << i);
+    }
+
+    led_toggle_mask |= (1 << current_floor);
+
+	if(current_state == up) // up
+	{
+		if((led_toggle_counter / 500) % 2 == 0)
+		{
+			GPIOB->ODR = led_mask | led_toggle_mask;
+			//led_toggle_counter = 0;
+		}
+		else
+		{
+			GPIOB->ODR = led_mask;
+		}
+
+	}
+	else if (current_state == down) //down
+	{
+
+	}
+	else // stop
+	{
+		GPIOB->ODR = led_mask;
+	}
+}
 
 void led_all_on(void)
 {

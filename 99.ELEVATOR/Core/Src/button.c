@@ -3,6 +3,9 @@
 
 void button_led_toggle_test();
 int get_button(GPIO_TypeDef *GPIO, int GPIO_Pin, int button_num);
+void elevator_button(void);
+
+extern int target_floor[5];
 
 void button_led_toggle_test()
 {
@@ -51,4 +54,12 @@ int get_button(GPIO_TypeDef *GPIO, int GPIO_Pin, int button_num)
 		return BUTTON_PRESS;	// 완전히 1번 눌렸다 뗴어진 상태로 인정
 	}
 	return BUTTON_RELEASE;	// 버튼이 open인 상태
+}
+
+void elevator_button(void)
+{
+	if(get_button(GPIOC,BTN0_Pin, BTN0) == BUTTON_PRESS) target_floor[1] = !target_floor[1];
+	if(get_button(GPIOC,BTN1_Pin, BTN1) == BUTTON_PRESS) target_floor[2] = !target_floor[2];
+	if(get_button(GPIOC,BTN2_Pin, BTN2) == BUTTON_PRESS) target_floor[3] = !target_floor[3];
+	if(get_button(GPIOC,BTN3_Pin, BTN3) == BUTTON_PRESS) target_floor[4] = !target_floor[4];
 }

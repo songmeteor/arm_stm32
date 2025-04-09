@@ -18,6 +18,7 @@ void init_ds1302();
 void display_date_time(void);
 
 extern enum CURRENT_FLOOR current_floor;
+extern int target_floor[5];
 
 void set_RTC(char *date_time)
 {
@@ -40,6 +41,7 @@ void display_date_time(void)
 {
 	char icd_buff[40];
 	char floor[][10] = {"first", "second", "third", "fourth"};
+	char target[10];
 
 	read_time_ds1302();
 	read_date_ds1302();
@@ -63,6 +65,8 @@ void display_date_time(void)
 		lcd_string(floor[3]);
 		break;
 	}
+	sprintf(target, "      %d%d%d%d", target_floor[1],target_floor[2], target_floor[3],target_floor[4]);
+	lcd_string(target);
 
 	sprintf(icd_buff,"Time: %2d:%2d:%2d",ds1302.hours,ds1302.minutes,ds1302.seconds);
 	move_cursor(1,0);

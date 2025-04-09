@@ -54,5 +54,13 @@ extern void stepmotor_main(void);
 extern void display_date_time(void);
 extern void elevator_main(void);
 extern void down_test(void);
+extern void up_test(void);;
+
+extern void init_date_time();
+extern void init_gpio_ds1302();
+extern void init_ds1302();
+extern void led_elevator();
+extern void led_all_on(void);
+extern void elevator_button(void);
 
 #endif /* __EXTERN_H */
