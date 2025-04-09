@@ -15,6 +15,8 @@ extern TIM_HandleTypeDef htim2;
 //extern volatile int front; //output index
 extern volatile int TIM11_1ms_counter;
 extern volatile int TIM11_1ms_counter2;
+extern volatile int line0_timer;
+extern volatile int line1_timer;
 extern t_print o_prt;
 
 extern int get_button(GPIO_TypeDef *GPIO, int GPIO_Pin, int button_num);
@@ -36,6 +38,8 @@ extern void i2c_lcd_main(void);
 extern void i2c_lcd_init(void);
 extern void lcd_string(uint8_t *str);
 extern void move_cursor(uint8_t row, uint8_t column);
+extern void i2c_lcd_dis_line0(void);
+extern void i2c_lcd_dis_line1(void);
 
 extern void buzzer_main();
 

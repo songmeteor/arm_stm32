@@ -71,10 +71,17 @@ const osThreadAttr_t myTask03_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for myMutex01 */
+osMutexId_t myMutex01Handle;
+const osMutexAttr_t myMutex01_attributes = {
+  .name = "myMutex01"
+};
 /* USER CODE BEGIN PV */
 uint8_t rx_data; //uart2 rx byte
 volatile int TIM11_1ms_counter = 0;
 volatile int TIM11_1ms_counter2 = 0;
+volatile int line0_timer = 0;
+volatile int line1_timer = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -174,6 +181,9 @@ int main(void)
 
   /* Init scheduler */
   osKernelInitialize();
+  /* Create the mutex(es) */
+  /* creation of myMutex01 */
+  myMutex01Handle = osMutexNew(&myMutex01_attributes);
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
@@ -638,7 +648,13 @@ void StartTask02(void *argument)
   /* Infinite loop */
   for(;;)
   {
+	shift_left_ledon();
 	dotmatrix_main_test();
+	if(osMutexWait(myMutex01Handle, 1000) == osOK) // lock key
+	{
+		i2c_lcd_dis_line0();
+		osMutexRelease(myMutex01Handle); // unlock key
+	}
     osDelay(1);
   }
   /* USER CODE END StartTask02 */
@@ -658,6 +674,11 @@ void StartTask03(void *argument)
   for(;;)
   {
 	  stepmotor_main();
+	  if(osMutexWait(myMutex01Handle, 1000) == osOK) // lock key
+	  {
+	      i2c_lcd_dis_line1();
+		  osMutexRelease(myMutex01Handle); // unlock key
+	  }
 	  osDelay(1);
   }
   /* USER CODE END StartTask03 */
@@ -683,6 +704,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim->Instance == TIM11) {
 	  TIM11_1ms_counter++;
 	  TIM11_1ms_counter2++;
+line0_timer++;
+line1_timer++;
   }
   /* USER CODE END Callback 1 */
 }
