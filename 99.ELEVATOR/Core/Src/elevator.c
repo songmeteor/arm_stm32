@@ -48,7 +48,6 @@ void elevator_main(void)
 		if(current_state == up)
 		{
 			stepmotor_state = FORWARD;
-
 		}
 		else if(current_state == down)
 		{
