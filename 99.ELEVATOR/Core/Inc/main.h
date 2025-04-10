@@ -100,6 +100,12 @@ void Error_Handler(void);
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
+#define FND_SDI_Pin GPIO_PIN_10
+#define FND_SDI_GPIO_Port GPIOC
+#define FND_SFTCLK_Pin GPIO_PIN_11
+#define FND_SFTCLK_GPIO_Port GPIOC
+#define FND_LATCH_Pin GPIO_PIN_12
+#define FND_LATCH_GPIO_Port GPIOC
 /* USER CODE BEGIN Private defines */
 typedef struct print_option
 {

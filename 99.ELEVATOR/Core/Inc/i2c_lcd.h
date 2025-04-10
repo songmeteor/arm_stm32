@@ -17,6 +17,8 @@
 #define CLEAR_DISPLAY 0x01  //Delay 2msec
 #define RETURN_HOME 0x02
 
+#define GPIOB_ODR  0x040020414
+
 void lcd_command(uint8_t command);
 void lcd_data(uint8_t data);
 void i2c_lcd_init(void);

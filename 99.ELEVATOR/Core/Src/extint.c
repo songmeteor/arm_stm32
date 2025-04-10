@@ -10,6 +10,10 @@ extern enum CURRENT_DOOR_STATE current_door_state;
 extern int target_floor[5];
 extern uint8_t buzzer_start;
 
+uint32_t last_time_pin0 = 0;
+uint32_t last_time_pin4 = 0;
+uint32_t last_time_pin5 = 0;
+uint32_t last_time_pin7 = 0;
 
 /**move from Drivers/ STM32F4XX_HAL_Driver/Src/stm32f4xx_hal_gpio to here
  *	external interrupt callback function
@@ -17,12 +21,6 @@ extern uint8_t buzzer_start;
   * @param  GPIO_Pin Specifies the pins connected EXTI line
   * @retval None
   */
-
-uint32_t last_time_pin0 = 0;
-uint32_t last_time_pin4 = 0;
-uint32_t last_time_pin5 = 0;
-uint32_t last_time_pin7 = 0;
-
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     uint32_t now = HAL_GetTick();
@@ -38,7 +36,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
             stepmotor_state = IDLE;
             target_floor[1] = 0;
             buzzer_start = 1;
-            printf("first\n");
+            //printf("first\n");
             break;
 
         case GPIO_PIN_4:
@@ -51,7 +49,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
             stepmotor_state = IDLE;
             target_floor[2] = 0;
             buzzer_start = 1;
-            printf("second\n");
+            //printf("second\n");
             break;
 
         case GPIO_PIN_5:
@@ -64,7 +62,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
             stepmotor_state = IDLE;
             target_floor[3] = 0;
             buzzer_start = 1;
-            printf("third\n");
+            //printf("third\n");
             break;
 
         case GPIO_PIN_7:
@@ -77,7 +75,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
             stepmotor_state = IDLE;
             target_floor[4] = 0;
             buzzer_start = 1;
-            printf("fourth\n");
+            //printf("fourth\n");
             break;
     }
 }

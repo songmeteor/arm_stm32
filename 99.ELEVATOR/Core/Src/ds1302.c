@@ -249,5 +249,3 @@ void init_date_time()
 	ds1302.minutes=30;
 	ds1302.seconds=00;
 }
-
-

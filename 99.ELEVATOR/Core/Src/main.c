@@ -97,8 +97,6 @@ int buzzer_msec = 0;
 int buzzer_delay = 0;
 volatile int TIM11_1ms_counter = 0;
 volatile int TIM11_1ms_counter2 = 0;
-volatile int line0_timer = 0;
-volatile int line1_timer = 0;
 volatile int elevator_open_counter = 0;
 volatile int led_toggle_counter = 0;
 volatile int buzzer_counter = 0;
@@ -203,6 +201,10 @@ int main(void)
   //ds1302_main();
   //buzzer_main();
   //servo_motor_main();
+//  while(1)
+//  {
+//	  fnd_elevator();
+//  }
 //  while(1)
 //  {
 //	  buzzer_elevator();
@@ -597,7 +599,8 @@ static void MX_GPIO_Init(void)
                           |GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, IN1_Pin|IN2_Pin|IN3_Pin|IN4_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, IN1_Pin|IN2_Pin|IN3_Pin|IN4_Pin
+                          |FND_SDI_Pin|FND_SFTCLK_Pin|FND_LATCH_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -643,8 +646,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : IN1_Pin IN2_Pin IN3_Pin IN4_Pin */
-  GPIO_InitStruct.Pin = IN1_Pin|IN2_Pin|IN3_Pin|IN4_Pin;
+  /*Configure GPIO pins : IN1_Pin IN2_Pin IN3_Pin IN4_Pin
+                           FND_SDI_Pin FND_SFTCLK_Pin FND_LATCH_Pin */
+  GPIO_InitStruct.Pin = IN1_Pin|IN2_Pin|IN3_Pin|IN4_Pin
+                          |FND_SDI_Pin|FND_SFTCLK_Pin|FND_LATCH_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -701,6 +706,7 @@ void StartTask02(void *argument)
 	if(osMutexWait(myMutex01Handle, 1000) == osOK) // lock key
 	{
 		display_date_time();
+		fnd_elevator();
 		osMutexRelease(myMutex01Handle); // unlock key
 	}
     osDelay(1);
@@ -771,7 +777,7 @@ void StartTask05(void *argument)
 		  osMutexRelease(myMutex01Handle); // unlock key
 	  }
 
-	  osDelay(1);
+	  //osDelay(1);
   }
   /* USER CODE END StartTask05 */
 }
@@ -796,8 +802,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim->Instance == TIM11) {
 	  TIM11_1ms_counter++;
 	  TIM11_1ms_counter2++;
-line0_timer++;
-line1_timer++;
 	  elevator_open_counter++;
 	  led_toggle_counter++;
 
