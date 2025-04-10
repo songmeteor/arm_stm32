@@ -7,6 +7,8 @@ volatile uint8_t rx_buff[COMMAND_NUMBER][COMMAND_LENGHT];
 volatile int rear = 0;
 volatile int front = 0;
 
+extern UART_HandleTypeDef huart2;
+
 t_print o_prt;
 
 void pc_command_processing(void);

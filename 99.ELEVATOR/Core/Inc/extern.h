@@ -7,7 +7,7 @@
 //#define COMMAND_LENGHT 40
 
 extern uint8_t rx_data;
-extern UART_HandleTypeDef huart2;
+//extern UART_HandleTypeDef huart2;
 extern TIM_HandleTypeDef htim2;
 
 //extern volatile uint8_t rx_buff[COMMAND_NUMBER][COMMAND_LENGHT];   // uart0로 부터 들어온 문자를 저장 하는 버퍼(변수)
@@ -20,6 +20,11 @@ extern volatile int line1_timer;
 extern volatile int elevator_open_counter;
 extern t_print o_prt;
 extern uint8_t stepmotor_state;
+
+extern uint8_t one[];
+extern uint8_t two[];
+extern uint8_t three[];
+extern uint8_t four[];
 
 extern int get_button(GPIO_TypeDef *GPIO, int GPIO_Pin, int button_num);
 
@@ -62,5 +67,11 @@ extern void init_ds1302();
 extern void led_elevator();
 extern void led_all_on(void);
 extern void elevator_button(void);
+
+extern void dotmatrix_elevator(void);
+extern void init_dotmatrix(uint8_t matrix[]);
+
+extern void buzzer_elevator(void);
+extern void fire_engine_sound();
 
 #endif /* __EXTERN_H */

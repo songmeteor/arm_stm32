@@ -92,23 +92,27 @@ const osMutexAttr_t myMutex01_attributes = {
 };
 /* USER CODE BEGIN PV */
 uint8_t rx_data; //uart2 rx byte
+uint8_t is_buzzer_playing = 0;
+int buzzer_msec = 0;
+int buzzer_delay = 0;
 volatile int TIM11_1ms_counter = 0;
 volatile int TIM11_1ms_counter2 = 0;
 volatile int line0_timer = 0;
 volatile int line1_timer = 0;
 volatile int elevator_open_counter = 0;
-volatile led_toggle_counter = 0;
+volatile int led_toggle_counter = 0;
+volatile int buzzer_counter = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_USART2_UART_Init(void);
 static void MX_TIM11_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM5_Init(void);
+static void MX_USART2_UART_Init(void);
 void StartDefaultTask(void *argument);
 void StartTask02(void *argument);
 void StartTask03(void *argument);
@@ -172,17 +176,18 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART2_UART_Init();
   MX_TIM11_Init();
   MX_TIM2_Init();
   MX_I2C1_Init();
   MX_TIM3_Init();
   MX_TIM5_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   i2c_lcd_init();
   init_date_time();
   init_gpio_ds1302();
   init_ds1302();
+  init_dotmatrix(one);
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10 | GPIO_PIN_13 | GPIO_PIN_15, 0);
   HAL_Delay(10); // DOTMATRIX init
 
@@ -198,6 +203,10 @@ int main(void)
   //ds1302_main();
   //buzzer_main();
   //servo_motor_main();
+//  while(1)
+//  {
+//	  buzzer_elevator();
+//  }
 //  while(1)
 //  {
 //	  down_test();
@@ -468,7 +477,6 @@ static void MX_TIM5_Init(void)
 
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
-  TIM_OC_InitTypeDef sConfigOC = {0};
 
   /* USER CODE BEGIN TIM5_Init 1 */
 
@@ -488,28 +496,15 @@ static void MX_TIM5_Init(void)
   {
     Error_Handler();
   }
-  if (HAL_TIM_PWM_Init(&htim5) != HAL_OK)
-  {
-    Error_Handler();
-  }
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim5, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  if (HAL_TIM_PWM_ConfigChannel(&htim5, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
-  {
-    Error_Handler();
-  }
   /* USER CODE BEGIN TIM5_Init 2 */
 
   /* USER CODE END TIM5_Init 2 */
-  HAL_TIM_MspPostInit(&htim5);
 
 }
 
@@ -593,7 +588,8 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LD2_Pin|CE_DS1302_Pin|IO_DS1302_Pin|CLK_DS1302_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1|LD2_Pin|CE_DS1302_Pin|IO_DS1302_Pin
+                          |CLK_DS1302_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|CLK_74HC595_Pin
@@ -615,14 +611,16 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA0 PA4 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_4;
+  /*Configure GPIO pins : PA0 PA4 PA7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_4|GPIO_PIN_7;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LD2_Pin CE_DS1302_Pin IO_DS1302_Pin CLK_DS1302_Pin */
-  GPIO_InitStruct.Pin = LD2_Pin|CE_DS1302_Pin|IO_DS1302_Pin|CLK_DS1302_Pin;
+  /*Configure GPIO pins : PA1 LD2_Pin CE_DS1302_Pin IO_DS1302_Pin
+                           CLK_DS1302_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_1|LD2_Pin|CE_DS1302_Pin|IO_DS1302_Pin
+                          |CLK_DS1302_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -723,9 +721,11 @@ void StartTask03(void *argument)
   /* Infinite loop */
   for(;;)
   {
+	  buzzer_elevator();
 	  if(osMutexWait(myMutex01Handle, 1000) == osOK) // lock key
 	  {
 		  elevator_main();
+		  led_elevator();
 		  osMutexRelease(myMutex01Handle); // unlock key
 	  }
 	  osDelay(1);
@@ -746,7 +746,7 @@ void StartTask04(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	  dotmatrix_main_test();
+	  dotmatrix_elevator();
 	  osDelay(1);
   }
   /* USER CODE END StartTask04 */
@@ -768,7 +768,6 @@ void StartTask05(void *argument)
 	  if(osMutexWait(myMutex01Handle, 1000) == osOK) // lock key
 	  {
 		  stepmotor_main();
-		  led_elevator();
 		  osMutexRelease(myMutex01Handle); // unlock key
 	  }
 
@@ -801,7 +800,20 @@ line0_timer++;
 line1_timer++;
 	  elevator_open_counter++;
 	  led_toggle_counter++;
+
+	if (is_buzzer_playing)
+	{
+		buzzer_msec++;
+		if (buzzer_msec == buzzer_delay)
+		{
+			is_buzzer_playing = 0;
+			buzzer_msec = 0;
+			buzzer_delay = 0;
+			htim3.Instance->CCR1=0;
+		}
+	}
   }
+
   /* USER CODE END Callback 1 */
 }
 

@@ -64,6 +64,14 @@ STM32에서 주파수를 만들 때 3개의 레지스터를 설정한다.
 extern TIM_HandleTypeDef htim3;
 
 void buzzer_main();
+void buzzer_elevator(void);
+void fire_engine_sound();
+
+uint8_t buzzer_start = 0;
+
+extern uint8_t is_buzzer_playing;
+extern int buzzer_msec;
+extern int buzzer_delay;
 
 enum notes
 {
@@ -95,6 +103,32 @@ unsigned int happy_birthday[] =
 
  unsigned int duration[] = {1,1,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,2,1,1,2,2,2,2};
 
+ void buzzer_elevator(void)
+ {
+	 static uint8_t idx = 0;
+	 int beats[2] = {800, 800};
+	 int tune[2] = {780, 650};
+
+	 if(buzzer_start == 1)
+	 {
+		 if (is_buzzer_playing == 0)
+		{
+			if (idx >= sizeof(beats)/sizeof(beats[0]))
+			{
+				idx = 0;
+				buzzer_start = 0;
+				htim3.Instance->CCR1=0;
+				HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+				return;
+			}
+			HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+			set_buzzer(tune[idx]);
+			is_buzzer_playing = 1;
+			buzzer_delay = beats[idx];
+			idx++;
+		}
+	 }
+ }
 
 
 void noTone()
