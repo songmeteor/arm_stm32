@@ -15,14 +15,14 @@ void led_elevator()
 	uint8_t led_mask = 0;
 	uint8_t led_toggle_mask = 0;
 
-    for (int i = 0; i < current_floor; i++) {
-        led_mask |= (1 << i);
-    }
-
-    led_toggle_mask |= (1 << current_floor);
-
 	if(current_state == up) // up
 	{
+	    for (int i = 0; i < current_floor; i++) {
+	        led_mask |= (1 << i);
+	    }
+
+	    led_toggle_mask |= (1 << current_floor);
+
 		if((led_toggle_counter / 500) % 2 == 0)
 		{
 			GPIOB->ODR = led_mask | led_toggle_mask;
@@ -36,10 +36,27 @@ void led_elevator()
 	}
 	else if (current_state == down) //down
 	{
+	    for (int i = 0; i < current_floor-1; i++) {
+	        led_mask |= (1 << i);
+	    }
+	    led_toggle_mask |= (1 << current_floor-1);
+
+		if((led_toggle_counter / 500) % 2 == 0)
+		{
+			GPIOB->ODR = led_mask | led_toggle_mask;
+			//led_toggle_counter = 0;
+		}
+		else
+		{
+			GPIOB->ODR = led_mask;
+		}
 
 	}
 	else // stop
 	{
+	    for (int i = 0; i < current_floor; i++) {
+	        led_mask |= (1 << i);
+	    }
 		GPIOB->ODR = led_mask;
 	}
 }

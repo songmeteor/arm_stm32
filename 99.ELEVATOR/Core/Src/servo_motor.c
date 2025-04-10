@@ -1,4 +1,4 @@
-#include "servo_motor.h"
+#include "main.h"
 
 extern volatile int TIM5_servo_motor_counter;
 extern TIM_HandleTypeDef htim5;

@@ -65,7 +65,8 @@ void display_date_time(void)
 		lcd_string(floor[3]);
 		break;
 	}
-	sprintf(target, "      %d%d%d%d", target_floor[1],target_floor[2], target_floor[3],target_floor[4]);
+	move_cursor(0,9);
+	sprintf(target, "%d%d%d%d", target_floor[1],target_floor[2], target_floor[3],target_floor[4]);
 	lcd_string(target);
 
 	sprintf(icd_buff,"Time: %2d:%2d:%2d",ds1302.hours,ds1302.minutes,ds1302.seconds);
@@ -248,5 +249,3 @@ void init_date_time()
 	ds1302.minutes=30;
 	ds1302.seconds=00;
 }
-
-
