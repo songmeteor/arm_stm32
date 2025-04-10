@@ -45,7 +45,7 @@ void lcd_command(uint8_t command){
 	i2c_buffer[2] = low_nibble  | 0x04 | 0x08; //en=1, rs=0, rw=0, backlight=1
 	i2c_buffer[3] = low_nibble  | 0x00 | 0x08; //en=0, rs=0, rw=0, backlight=1
 
-	I2C_Master_Transmit(i2c_buffer);
+	//I2C_Master_Transmit(i2c_buffer);
 	while(HAL_I2C_Master_Transmit(&hi2c1, I2C_LCD_ADDRESS,
 			i2c_buffer, 4, 100)!=HAL_OK){
 		//HAL_Delay(1);
@@ -169,6 +169,7 @@ void i2c_stop_sig()   // SCL-high, SDA-상승엣지
    *(unsigned int*)GPIOB_ODR &= ~(1<<8);   // SCL LOW
    HAL_Delay(1);
 }
+
 
 
 

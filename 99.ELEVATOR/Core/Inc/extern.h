@@ -56,5 +56,6 @@ extern void up_test(void);;
 extern void buzzer_elevator(void);
 
 extern void fnd_elevator(void);
+extern void fnd_display(uint8_t fnd, uint8_t location);
 
 #endif /* __EXTERN_H */

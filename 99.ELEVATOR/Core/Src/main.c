@@ -85,6 +85,13 @@ const osThreadAttr_t myTask05_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for myTask06 */
+osThreadId_t myTask06Handle;
+const osThreadAttr_t myTask06_attributes = {
+  .name = "myTask06",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 /* Definitions for myMutex01 */
 osMutexId_t myMutex01Handle;
 const osMutexAttr_t myMutex01_attributes = {
@@ -116,6 +123,7 @@ void StartTask02(void *argument);
 void StartTask03(void *argument);
 void StartTask04(void *argument);
 void StartTask05(void *argument);
+void StartTask06(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -260,6 +268,9 @@ int main(void)
 
   /* creation of myTask05 */
   myTask05Handle = osThreadNew(StartTask05, NULL, &myTask05_attributes);
+
+  /* creation of myTask06 */
+  myTask06Handle = osThreadNew(StartTask06, NULL, &myTask06_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -684,8 +695,8 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	elevator_button();
-    osDelay(1);
+	 elevator_button();
+     osDelay(1);
   }
   /* USER CODE END 5 */
 }
@@ -706,10 +717,9 @@ void StartTask02(void *argument)
 	if(osMutexWait(myMutex01Handle, 1000) == osOK) // lock key
 	{
 		display_date_time();
-		fnd_elevator();
 		osMutexRelease(myMutex01Handle); // unlock key
 	}
-    osDelay(1);
+	osDelay(1);
   }
   /* USER CODE END StartTask02 */
 }
@@ -727,7 +737,6 @@ void StartTask03(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	  buzzer_elevator();
 	  if(osMutexWait(myMutex01Handle, 1000) == osOK) // lock key
 	  {
 		  elevator_main();
@@ -752,6 +761,7 @@ void StartTask04(void *argument)
   /* Infinite loop */
   for(;;)
   {
+	  buzzer_elevator();
 	  dotmatrix_elevator();
 	  osDelay(1);
   }
@@ -771,15 +781,29 @@ void StartTask05(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	  if(osMutexWait(myMutex01Handle, 1000) == osOK) // lock key
-	  {
-		  stepmotor_main();
-		  osMutexRelease(myMutex01Handle); // unlock key
-	  }
-
-	  //osDelay(1);
+	  stepmotor_main();
+	  osDelay(1);
   }
   /* USER CODE END StartTask05 */
+}
+
+/* USER CODE BEGIN Header_StartTask06 */
+/**
+* @brief Function implementing the myTask06 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTask06 */
+void StartTask06(void *argument)
+{
+  /* USER CODE BEGIN StartTask06 */
+  /* Infinite loop */
+  for(;;)
+  {
+	 fnd_elevator();
+//    osDelay(1);
+  }
+  /* USER CODE END StartTask06 */
 }
 
 /**

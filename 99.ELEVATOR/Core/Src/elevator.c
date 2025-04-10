@@ -61,7 +61,7 @@ void elevator_main(void)
 	}
 	else if(current_door_state == open)
 	{
-		if(elevator_open_counter >= 3000)
+		if(elevator_open_counter >= 5000)
 		{
 			current_door_state = close;
 		}
